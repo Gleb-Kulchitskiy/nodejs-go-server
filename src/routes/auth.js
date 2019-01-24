@@ -3,11 +3,10 @@ const { passwordHash, getError } = require('../utils');
 const { query } = require('../db/postgresql');
 const router = new Router();
 const passport = require('../passport');
-const path = require('path');
 
 router.get('/login', (req, res) => {
   if (req.user)
-    return res.status(200).json(req.user);
+    return res.json(req.user);
   else
     return res.status(401).send('unauthorized');
 });
@@ -20,7 +19,7 @@ router.post('/login', (req, res, next) => {
     const errors = req.validationErrors();
     if (errors) {
       const err = getError(errors, 400);
-      return next(new Error(JSON.stringify(err)));
+      return next(err);
     }
 
     next();
@@ -28,7 +27,7 @@ router.post('/login', (req, res, next) => {
   passport.authenticate('local'),
   (req, res, next) => {
     if (req.user)
-      res.status(200).send('User successfully logged in');
+      res.json({ user: req.user });
     else
       next(new Error('something went wrong'));
   }
@@ -56,11 +55,11 @@ router.post('/singup',
     const errors = req.validationErrors();
     if (errors) {
       const err = getError(errors, 400);
-      return next(new Error(JSON.stringify(err)));
+      return next(err);
     }
-
     next();
   },
+
   async (req, res, next) => {
     const { email, password, firstName = null, lastName = null } = req.body;
     let user;
@@ -68,47 +67,60 @@ router.post('/singup',
       const data = await query('SELECT id FROM users WHERE email=$1', [email]);
       user = data.rows[0];
     } catch (e) {
-      console.log('-e-', e);
       return next(e);
     }
 
-    if (user) return next(new Error('user already exist'));
+    if (user) {
+      const err = getError([{ msg: 'user already exist' }], 409);
+      return next(err);
+    }
     else {
       const hashedPassword = passwordHash(password);
       let user;
       try {
-        user = await query('INSERT INTO users (first_name, last_name, email, password, is_anonymous) VALUES ($1, $2, $3, $4, $5) RETURNING*;',
+        const data = await query('INSERT INTO users (first_name, last_name, email, password, is_anonymous) VALUES ($1, $2, $3, $4, $5) RETURNING*;',
           [firstName, lastName, email, hashedPassword, 0]);
+        user = data.rows[0];
       } catch (e) {
-        next(e);
+        return next(e);
       }
-
-      req.logIn(user.rows[0], (err) => {
+      req.logIn(user, (err) => {
         if (err) return next(err);
-        return res.end('user was saved');
+        return res.json({ user: req.user });
       });
     }
   });
 
 router.post('/singupanonymous', async (req, res, next) => {
   const { firstName } = req.body;
+  const email = firstName;
   let user;
   try {
-    const data = await query('SELECT id FROM users WHERE first_name=$1', [firstName]);
+    const data = await query('SELECT id FROM users WHERE email=$1', [email]);
     user = data.rows[0];
   } catch (e) {
     return next(e);
   }
 
-  if (user) return next(new Error('userName already exist'));
+  if (user) {
+    const err = getError([{ msg: 'userName already busy' }], 409);
+    return next(err);
+  }
   else {
-    const user = await query('INSERT INTO users (first_name, is_anonymous) VALUES ($1, $2) RETURNING*;',
-      [firstName, 1]);
-    req.logIn(user.rows[0], (err) => {
+    let user;
+    try {
+      const data = await query('INSERT INTO users (first_name, email, is_anonymous) VALUES ($1, $2, $3) RETURNING*;',
+        [firstName, email, 1]);
+      user = data.rows[0];
+    } catch (e) {
+      return next(e);
+    }
+    req.logIn(user, (err) => {
       if (err) return next(err);
-      return res.end('anonymous user was saved');
+      return res.json({ user: req.user });
     });
   }
-});
+})
+;
 
 module.exports = router;

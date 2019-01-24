@@ -56,31 +56,18 @@ require('./routes').init(app);
 if (process.env.NODE_ENV === 'development') {
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, next) => {
-    let error;
-    try {
-      error = JSON.parse(err.message);
-    } catch (e) {
-      res.status(500).send(JSON.stringify(e));
-    }
-    if (error && error.status) {
-      res.status(error.status).json(error);
-    }
+    if (err.status)
+      res.status(err.status).send(err.msg);
     else
     // only use in development
-    app.use(errorHandler());
+      app.use(errorHandler());
   });
 
 } else {
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line no-unused-varsF
   app.use((err, req, res, next) => {
-    let error;
-    try {
-      error = JSON.parse(err);
-    } catch (e) {
-      res.status(500).send('Server Error');
-    }
-    if (error.status)
-      res.status(error.status).send(error.msg);
+    if (err.status)
+      res.status(err.status).send(err.msg);
     else
       res.status(500).send('Server Error');
   });

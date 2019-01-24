@@ -6,11 +6,12 @@ exports.passwordHash = (password, salt = process.env.SALT) => {
     .digest('hex');
 };
 exports.getError = (errors = [], status) => {
-  const err = {};
-  err.msg = errors.reduce((p, c) => {
+  const err = new Error();
+  const message = errors.reduce((p, c) => {
     p.push(c.msg);
     return p;
   }, []);
+  err.message = JSON.stringify(message);
   err.status = status || 500;
   return err;
 };
