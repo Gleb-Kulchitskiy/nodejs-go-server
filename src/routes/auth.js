@@ -45,6 +45,11 @@ router.get('/logout', (req, res) => {
   });
 });
 
+router.get('/facebook', passport.authenticate('facebook', { scope: ['email', 'public_profile'] }));
+router.get('/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }), (req, res) => {
+  res.redirect(req.session.returnTo || '/');
+});
+
 router.post('/singup',
   (req, res, next) => {
     req.assert('email', 'Email is not valid').isEmail();

@@ -7,5 +7,7 @@ module.exports = {
   PG_HOST: process.env.PG_HOST,
   PG_PASSWORD: process.env.PG_PASSWORD,
   PG_DATABASE: process.env.PG_DATABASE,
-  PG_PORT: process.env.PG_PORT
+  PG_PORT: process.env.PG_PORT,
+  FACEBOOK_ID:process.env.FACEBOOK_ID,
+  FACEBOOK_SECRET:process.env.FACEBOOK_SECRET
 };

@@ -1,5 +1,7 @@
-const http = require('http');
 const path = require('path');
+require('dotenv').config();
+const config = require('./config');
+const http = require('http');
 const express = require('express');
 const ioServer = require('socket.io');
 const cors = require('cors');
@@ -13,10 +15,14 @@ const expressValidator = require('express-validator');
 const chalk = require('chalk');
 const errorHandler = require('errorhandler');
 const passport = require('./passport');
-require('dotenv').config();
-
 const app = express();
-const pool = new Pool();
+const pool = new Pool({
+  user: config.PG_USER,
+  host: config.PG_HOST,
+  database: config.PG_DATABASE,
+  password: config.PG_PASSWORD,
+  port: config.PG_PORT,
+});
 
 const server = http.createServer(app);
 const io = ioServer(server);
