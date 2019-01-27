@@ -40,7 +40,8 @@ passport.use('local', new LocalStrategy({ usernameField: 'email' }, async (email
     : done(null, false, { msg: 'Invalid email or password.' });
 }));
 
-passport.use(new FacebookStrategy({
+passport.use(new FacebookStrategy(
+  {
     clientID: config.FACEBOOK_ID,
     clientSecret: config.FACEBOOK_SECRET,
     callbackURL: '/auth/facebook/callback',
@@ -58,27 +59,25 @@ passport.use(new FacebookStrategy({
         WHERE id=$7
         AND 
         facebook IS NULL
-        RETURNING *;`,
-          [profile.id,
-            `'${JSON.stringify({ accessToken: accessToken })}'`,
-            `'${profile.name.givenName} ${profile.name.familyName}'`,
-            `'${profile._json.gender}'`,
-            `https://graph.facebook.com/${profile.id}/picture?type=large`,
-            `'${profile.timezone}'`,
-            req.user.id
-          ]);
+        RETURNING *;`, [profile.id,
+          `'${JSON.stringify({ accessToken: accessToken })}'`,
+          `'${profile.name.givenName} ${profile.name.familyName}'`,
+          `'${profile._json.gender}'`,
+          `https://graph.facebook.com/${profile.id}/picture?type=large`,
+          `'${profile.timezone}'`,
+          req.user.id
+        ]);
         user = data.rows[0];
       } catch (e) {
         return done(e);
       }
-      if (user)
+      if (user) {
         return done(null, user);
-      else {
+      } else {
         const err = getError({ msg: 'There is already a Facebook account that belongs to user' }, 409);
         return done(err);
       }
-    }
-    else {
+    } else {
       let user;
       try {
         const data = await pgQuery(`UPDATE users SET facebook = $1, tokens = jsonb_set(tokens, '{ facebook }', $2,), 
@@ -90,23 +89,21 @@ passport.use(new FacebookStrategy({
         facebook = $1
         OR
         email = $7
-        RETURNING *;`,
-          [
-            profile.id,
-            `'${accessToken}'`,
-            `'${profile.name.givenName} ${profile.name.familyName}'`,
-            `'${profile._json.gender}'`,
-            `https://graph.facebook.com/${profile.id}/picture?type=large`,
-            `'${profile.timezone}'`,
-            `'${profile._json.email}'`
-          ]);
+        RETURNING *;`, [profile.id,
+          `'${accessToken}'`,
+          `'${profile.name.givenName} ${profile.name.familyName}'`,
+          `'${profile._json.gender}'`,
+          `https://graph.facebook.com/${profile.id}/picture?type=large`,
+          `'${profile.timezone}'`,
+          `'${profile._json.email}'`
+        ]);
         user = data.rows[0];
       } catch (e) {
         return done(e);
       }
-      if (user)
+      if (user) {
         return done(null, user);
-      else {
+      } else {
         let user;
         try {
           const data = await pgQuery('INSERT INTO users ( email, facebook, tokens, profile ) VALUES ($1, $2, $3, $4) RETURNING *;',
