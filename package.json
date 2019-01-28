@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon --watch src --exec 'NODE_ENV=development node ./src/app.js'",
+    "dev2": "set NODE_ENV=development && nodemon --watch src --exec node ./src/app.js",
     "inspect": "nodemon --inspect ./src/app.js",
     "test": "test"
   },
