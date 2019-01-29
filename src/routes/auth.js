@@ -50,6 +50,10 @@ router.get('/facebook/callback', passport.authenticate('facebook', { failureRedi
   res.redirect(req.session.returnTo || '/');
 });
 
+app.get('/auth/github', passport.authenticate('github'));
+app.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/' }), (req, res) => {
+  res.redirect(req.session.returnTo || '/');
+
 router.post('/singup',
   (req, res, next) => {
     req.assert('email', 'Email is not valid').isEmail();
