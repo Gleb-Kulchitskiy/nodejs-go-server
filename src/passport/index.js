@@ -47,7 +47,8 @@ passport.use(new FacebookStrategy(
     clientSecret: config.FACEBOOK_SECRET,
     callbackURL: '/auth/facebook/callback',
     profileFields: ['name', 'email', 'link', 'locale', 'timezone', 'gender'],
-    passReqToCallback: true
+    passReqToCallback: true,
+    state: true,
   }, async (req, accessToken, refreshToken, profile, done) => {
     if (req.user) {
       let user;
@@ -75,7 +76,7 @@ passport.use(new FacebookStrategy(
       if (user) {
         return done(null, user);
       } else {
-        const err = getError({ msg: 'There is already a Facebook account that belongs to user' }, 409);
+        const err = getError({ msg: 'There is already a Facebook account that belongs to the logged in user' }, 409);
         return done(err);
       }
     } else {
@@ -133,7 +134,8 @@ passport.use(new GitHubStrategy({
   clientID: config.GITHUB_ID,
   clientSecret: config.GITHUB_SECRET,
   callbackURL: '/auth/github/callback',
-  passReqToCallback: true
+  passReqToCallback: true,
+  state: true,
 }, async (req, accessToken, refreshToken, profile, done) => {
   if (req.user) {
     let user;
