@@ -1,5 +1,5 @@
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(process.cwd(), '/src/.env') });
 const config = require('./config');
 const http = require('http');
 const express = require('express');
@@ -33,7 +33,10 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors());
+app.use(cors({
+  origin: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+}));
 app.use(expressValidator());
 app.use(session({
   resave: true,
@@ -52,12 +55,16 @@ app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: 31557600000
 }));
 
-app.use('/*', (req, res, next) => {
+app.use('*', (req, res, next) => {
   req.session.flash = {};
   next();
 });
 
 require('./routes').init(app);
+
+app.use('*', (req, res, next) => {
+  res.sendFile(path.join(process.cwd(), 'src', 'public'));
+});
 
 if (process.env.NODE_ENV === 'development') {
   // eslint-disable-next-line no-unused-vars

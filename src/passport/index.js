@@ -48,7 +48,7 @@ passport.use(new FacebookStrategy(
     callbackURL: '/auth/facebook/callback',
     profileFields: ['name', 'email', 'link', 'locale', 'timezone', 'gender'],
     passReqToCallback: true,
-    state: true,
+    state: true
   }, async (req, accessToken, refreshToken, profile, done) => {
     if (req.user) {
       let user;
@@ -135,7 +135,7 @@ passport.use(new GitHubStrategy({
   clientSecret: config.GITHUB_SECRET,
   callbackURL: '/auth/github/callback',
   passReqToCallback: true,
-  state: true,
+  state: true
 }, async (req, accessToken, refreshToken, profile, done) => {
   if (req.user) {
     let user;
