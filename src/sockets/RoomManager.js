@@ -3,7 +3,7 @@ const Room = require('./Room');
 class RoomManager {
 
   constructor () {
-    this.rooms = new Map(['global', new Room('global')]);
+    this.rooms = new Map([['global', new Room('global')]]);
   }
 
   addRoom (roomName) {
@@ -23,7 +23,7 @@ class RoomManager {
   }
 
   serializeRooms () {
-    [...this.rooms.values()].map(room => room.serialize());
+    return [...this.rooms.values()].map(room => room.serialize());
   }
 }
 

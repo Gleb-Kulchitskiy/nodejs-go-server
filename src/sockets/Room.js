@@ -4,7 +4,6 @@ class Room {
     this.members = new Map();
     this.history = [];
   }
-
   broadcastMessage (message) {
     if (!this.members.size) {
       throw new Error('No members to broadcast for');

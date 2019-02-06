@@ -1,28 +1,29 @@
-const Room = require('../sockets/Room');
 const expect = require('chai').expect;
 const sinon = require('sinon');
 
-describe('Room', function () {
+const Room = require('../sockets/Room');
+
+describe('Room class', function () {
   let room;
   beforeEach(function () {
     room = new Room('test');
   });
   describe('room object', function () {
-    it('should return an object instanceof Room with 3 field', function () {
+    it('should be an object instanceof Room with 3 field', function () {
       expect(room).to.be.an.instanceOf(Room);
       expect(room).to.be.an('object');
       expect(Object.keys(room).length).to.be.equal(3);
     });
 
-    it('should return an object with field typeOf string', function () {
+    it('should have a field typeOf string', function () {
       expect(room.name).to.be.an('string');
     });
 
-    it('should return an object with field instanceOf Map', function () {
+    it('should have a field instanceOf Map', function () {
       expect(room.members).to.be.an.instanceOf(Map);
     });
 
-    it('should return an object with field instanceOf array', function () {
+    it('should have a field instanceOf array', function () {
       expect(room.history).to.be.an.instanceOf(Array);
     });
   });
@@ -38,32 +39,26 @@ describe('Room', function () {
     });
 
     it('should call emit method from all members', function () {
-      const testProto = Object.assign({
+      const testProto = {
         emit: () => {
         }
-      });
-      room.addUser(Object.assign(testProto, {
+      };
+      room.addUser(Object.setPrototypeOf({
         id: 1,
-        client: 'Ola',
-        emit: () => {
-        }
-      }));
-      room.addUser(Object.assign(testProto, {
+        client: 'Ola'
+      }, testProto));
+      room.addUser(Object.setPrototypeOf({
         id: 2,
-        client: 'OlaLa',
-        emit: () => {
-        }
-      }));
-      room.addUser(Object.assign(testProto, {
+        client: 'OlaLa'
+      }, testProto));
+      room.addUser(Object.setPrototypeOf({
         id: 3,
-        client: 'OlaLaLa',
-        emit: () => {
-        }
-      }));
-      const members = room.members;
-      const member = room.members.get(1);
-      const spyForEach = sinon.spy(members, 'forEach');
-      const spyEmit = sinon.spy(member, 'emit');
+        client: 'OlaLaLa'
+      }, testProto));
+      const spyForEach = sinon.spy(room.members, 'forEach');
+      // eslint-disable-next-line no-proto
+      const memberProto = room.members.get(1).__proto__;
+      const spyEmit = sinon.spy(memberProto, 'emit');
       room.broadcastMessage('message');
       spyForEach.restore();
       sinon.assert.calledOnce(spyForEach);
@@ -72,17 +67,18 @@ describe('Room', function () {
   });
 
   describe('addEntry', function () {
-    it('should called once and increase length of history field by 1', function () {
+    it('should be called once and push argument to the history', function () {
+      const size = room.history.length;
       const spy = sinon.spy(room, 'addEntry');
       room.addEntry('message');
       spy.restore();
       sinon.assert.calledOnce(spy);
-      expect(spy.thisValues[0].history.length).be.equal(room.history.length);
+      expect(spy.thisValues[0].history.length).be.equal(size + 1);
     });
   });
 
   describe('getHistory', function () {
-    it('should called once and return copy of history array', function () {
+    it('should be called once and return copy of history', function () {
       const spy = sinon.spy(room, 'getHistory');
       room.addEntry({ id: 1, client: 'Roma' });
       room.getHistory();
@@ -101,7 +97,7 @@ describe('Room', function () {
       sinon.assert.calledOnce(spy);
       expect(spy.thisValues[0].members.size).to.be.equal(room.members.size);
     });
-    it('should set value equal to the arguments', function () {
+    it('should set the value equal to the arguments', function () {
       const spy = sinon.spy(room, 'addUser');
       room.addUser({ id: 1, client: 'Olga' });
       spy.restore();
@@ -110,18 +106,30 @@ describe('Room', function () {
   });
 
   describe('removeUser', function () {
-    it('should called once and decrease size of members by 1 if user exist', function () {
+    it('should remove user and decrease size of members by 1 if user exist', function () {
+      const membersSize = room.members.size;
       room.addUser({ id: 1, client: 'Olga' });
       const spy = sinon.spy(room, 'removeUser');
       room.removeUser({ id: 1 });
       spy.restore();
       sinon.assert.calledOnce(spy);
-      expect(spy.thisValues[0].members.size).to.be.equal(room.members.size);
+      expect(spy.thisValues[0].members.size).to.be.equal(membersSize);
+    });
+    it('should remove user by id', function () {
+      room.addUser({ id: 1, client: 'Ola' });
+      const roomMock = sinon.mock(room);
+
+      roomMock
+        .expects('removeUser')
+        .withArgs({ id: 1 });
+      room.removeUser({ id: 1 });
+      roomMock.verify();
+      roomMock.restore();
     });
   });
 
   describe('serialize', function () {
-    it('should called once and return an object with to field', function () {
+    it('should be called once and return an object with 2 fields', function () {
       const spy = sinon.spy(room, 'serialize');
       room.serialize();
       spy.restore();
@@ -129,7 +137,7 @@ describe('Room', function () {
       expect(spy.returnValues[0]).to.be.an('object').that.has.all.keys('name', 'numMembers');
     });
 
-    it('should return object where one field is represent name of room and a second number of its members', function () {
+    it('should return object where one field is represent name of room and the second number of its members', function () {
       const spy = sinon.spy(room, 'serialize');
       room.serialize();
       spy.restore();
