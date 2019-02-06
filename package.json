@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon --watch src --exec 'NODE_ENV=development node ./src/app.js'",
     "inspect": "nodemon --inspect ./src/app.js",
-    "test": "test"
+    "test": "mocha ./src/test"
   },
   "author": "Gleb Kulchitskiy",
   "license": "ISC",
@@ -33,12 +33,16 @@
     "socket.io": "^2.2.0"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "eslint": "^5.12.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-mocha": "^5.2.1",
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
-    "nodemon": "^1.9.2"
+    "mocha": "^5.2.0",
+    "nodemon": "^1.9.2",
+    "sinon": "^7.2.3"
   }
 }

@@ -103,7 +103,7 @@ module.exports = function (client, clientManager, roomManager) {
       .catch(callback);
   }
 
-  function handleMessage ({ roomName, message } = {}, callback) {
+    function handleMessage ({ roomName, message } = {}, callback) {
     const createEntry = () => ({ message });
 
     handleEventForLoggedUsers(roomName, createEntry)

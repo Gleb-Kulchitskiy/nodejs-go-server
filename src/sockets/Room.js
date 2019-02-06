@@ -6,11 +6,17 @@ class Room {
   }
 
   broadcastMessage (message) {
+    if (!this.members.size) {
+      throw new Error('No members to broadcast');
+    }
+    if (!message) {
+      throw new Error('No message to broadcast');
+    }
     this.members.forEach(member => member.emit('message', message));
   }
 
   addEntry (entry) {
-    this.history = this.history.push(entry);
+    this.history.push(entry);
   }
 
   getHistory () {
