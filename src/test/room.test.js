@@ -37,7 +37,37 @@ describe('Room', function () {
       expect(() => room.broadcastMessage()).to.throw(Error, 'No message to broadcast');
     });
 
-    it.skip('should call emit method from all members', function () {
+    it('should call emit method from all members', function () {
+      const testProto = Object.assign({
+        emit: () => {
+        }
+      });
+      room.addUser(Object.assign(testProto, {
+        id: 1,
+        client: 'Ola',
+        emit: () => {
+        }
+      }));
+      room.addUser(Object.assign(testProto, {
+        id: 2,
+        client: 'OlaLa',
+        emit: () => {
+        }
+      }));
+      room.addUser(Object.assign(testProto, {
+        id: 3,
+        client: 'OlaLaLa',
+        emit: () => {
+        }
+      }));
+      const members = room.members;
+      const member = room.members.get(1);
+      const spyForEach = sinon.spy(members, 'forEach');
+      const spyEmit = sinon.spy(member, 'emit');
+      room.broadcastMessage('message');
+      spyForEach.restore();
+      sinon.assert.calledOnce(spyForEach);
+      sinon.assert.calledThrice(spyEmit);
     });
   });
 
@@ -64,12 +94,18 @@ describe('Room', function () {
   });
 
   describe('addUser', function () {
-    it('should called once and increase size of members by 1', function () {
+    it('should called once, increase size of members by 1', function () {
       const spy = sinon.spy(room, 'addUser');
       room.addUser({ id: 1, client: 'Roma' });
       spy.restore();
       sinon.assert.calledOnce(spy);
       expect(spy.thisValues[0].members.size).to.be.equal(room.members.size);
+    });
+    it('should set value equal to the arguments', function () {
+      const spy = sinon.spy(room, 'addUser');
+      room.addUser({ id: 1, client: 'Olga' });
+      spy.restore();
+      expect(spy.thisValues[0].members.entries().next().value).to.be.deep.equal([1, { id: 1, client: 'Olga' }]);
     });
   });
 

@@ -7,7 +7,7 @@ class Room {
 
   broadcastMessage (message) {
     if (!this.members.size) {
-      throw new Error('No members to broadcast');
+      throw new Error('No members to broadcast for');
     }
     if (!message) {
       throw new Error('No message to broadcast');
