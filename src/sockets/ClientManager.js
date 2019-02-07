@@ -18,25 +18,25 @@ class ClientManager {
   getAvailableUsers () {
     return [...this.clients.values()]
       .filter(client => client.user)
-      .map(user => user.name);
+      .map(client => client.user.name);
   }
 
   isUserAvailable (userName) {
-    return this.getAvailableUsers().some(user => user.name === userName);
+    return this.getAvailableUsers().some(name => name === userName);
   }
 
   getUserByName (userName) {
-    return [this.clients.values()]
+    return [...this.clients.values()]
       .filter(client => client.user)
-      .find(user => user.name === userName);
+      .find(client => client.user.name === userName);
   }
 
-  getUserByClientId (client) {
-    return (this.clients.get(client.id) || {}).user;
+  getUserByClientId (id) {
+    return (this.clients.get(id) || {}).user;
   }
 
-  getClientById (client) {
-    return this.clients.get(client.id);
+  getClientById (id) {
+    return this.clients.get(id);
   }
 }
 

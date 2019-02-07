@@ -4,6 +4,7 @@ const _ = require('lodash');
 
 const roomManager = require('../sockets/RoomManager');
 const Room = require('../sockets/Room');
+
 describe('roomManager', function () {
   let manager;
   beforeEach(function () {
@@ -25,18 +26,21 @@ describe('roomManager', function () {
       const roomsSize = manager.rooms.size;
       const spy = sinon.spy(manager, 'addRoom');
       manager.addRoom('test');
-      spy.restore();
+      sinon.assert.calledOnce(spy);
+      //   spy.restore();
       expect(manager.rooms.size).to.be.equal(roomsSize + 1);
     });
     it('added value should be instance of Room', function () {
       const spy = sinon.spy(manager, 'addRoom');
       manager.addRoom('test');
+      sinon.assert.calledOnce(spy);
       spy.restore();
       expect(manager.rooms.get('test')).to.be.an.instanceOf(Room);
     });
     it('new key of added value should be equal argument', function () {
       const spy = sinon.spy(manager, 'addRoom');
       manager.addRoom('test');
+      sinon.assert.calledOnce(spy);
       spy.restore();
       expect(manager.rooms.get('test')).to.be.an('object');
     });
