@@ -4,13 +4,16 @@ class Room {
     this.members = new Map();
     this.history = [];
   }
+
   broadcastMessage (message) {
     if (!this.members.size) {
       throw new Error('No members to broadcast for');
-    }
-    if (!message) {
+    } else if (!message) {
       throw new Error('No message to broadcast');
+    } else if (typeof message !== 'string') {
+      throw new Error(`Message should be a string, but got ${message.toString()}`);
     }
+
     this.members.forEach(member => member.emit('message', message));
   }
 

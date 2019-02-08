@@ -4,11 +4,11 @@ class ClientManager {
   }
 
   addClient (client) {
-    this.clients.set(client.id, { client });
+    this.clients.set(client.id, { id: client.id, client });
   }
 
   registerClient (client, user) {
-    this.clients.set(client.id, { client, user });
+    this.clients.set(client.id, { id: client.id, client, user });
   }
 
   removeClient (client) {

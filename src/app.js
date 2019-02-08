@@ -1,5 +1,5 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(process.cwd(), '/src/.env') });
+require('dotenv').config();
 const config = require('./config');
 const http = require('http');
 const express = require('express');

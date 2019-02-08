@@ -48,10 +48,9 @@ function makeHandleEvent (client, clientManager, roomManager) {
   function handleEventForLoggedUsers (roomName, createEntry) {
     return makeSureValidRoomAndUserLoggedIn(roomName)
       .then(function ({ room, user }) {
-        const entry = { user, ...createEntry() };
+        const entry = JSON.stringify({ user, ...createEntry() }).replace(/[\"]/g, '');
         room.addEntry(entry);
-        //todo
-        room.broadcastMessage({ chat: roomName, ...entry });
+        room.broadcastMessage(`roomName: ${roomName}, ${entry}`);
         return room;
       });
   }
@@ -59,10 +58,8 @@ function makeHandleEvent (client, clientManager, roomManager) {
   function handleEventForAllUsers (roomName, createEntry) {
     return makeSureValidRoomAndClientConnected(roomName)
       .then(function ({ room, user }) {
-        const entry = { user, ...createEntry() };
+        const entry = JSON.stringify({ ...user, ...createEntry() }).replace(/[\"]/g, '');
         room.addEntry(entry);
-        //todo
-        room.broadcastMessage({ chat: roomName, ...entry });
         return room;
       });
   }
@@ -77,9 +74,9 @@ function makeHandleEvent (client, clientManager, roomManager) {
     handleEventForAllUsers,
     makeSureUserLoggedIn
   };
-}
+};
 
-module.exports = function (client, clientManager, roomManager) {
+function handlers (client, clientManager, roomManager) {
   const {
     handleEventForLoggedUsers,
     handleEventForAllUsers,
@@ -108,7 +105,7 @@ module.exports = function (client, clientManager, roomManager) {
       .catch(callback);
   }
 
-    function handleMessage ({ roomName, message } = {}, callback) {
+  function handleMessage ({ roomName, message } = {}, callback) {
     const createEntry = () => ({ message });
 
     handleEventForLoggedUsers(roomName, createEntry)
@@ -152,4 +149,9 @@ module.exports = function (client, clientManager, roomManager) {
     handleGetAvailableUsers,
     handleDisconnect
   };
+};
+
+module.exports = {
+  makeHandleEvent,
+  handlers
 };

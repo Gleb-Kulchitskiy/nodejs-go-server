@@ -38,6 +38,12 @@ describe('Room class', function () {
       expect(() => room.broadcastMessage()).to.throw(Error, 'No message to broadcast');
     });
 
+    it('should throw Error if message not a string', () => {
+      room.addUser({ id: '1', client: 'igor' });
+      const message = { notString: 1 };
+      expect(() => room.broadcastMessage(message)).to.throw(Error, `Message should be a string, but got ${message.toString()}`);
+    });
+
     it('should call emit method from all members', function () {
       const testProto = {
         emit: () => {

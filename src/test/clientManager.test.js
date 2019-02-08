@@ -2,19 +2,15 @@ const expect = require('chai').expect;
 const sinon = require('sinon');
 const _ = require('lodash');
 
-const manager = require('../sockets/ClientManager');
-const clientManager = _.cloneDeep(manager);
+const clientManager = require('../sockets/ClientManager');
 
 describe('clientManager', function () {
   let size;
   beforeEach(function () {
-    size = manager.clients.size;
+    clientManager.clients = new Map();
+    size = clientManager.clients.size;
   });
-  afterEach(function () {
-    size = manager.clients.size;
-    clientManager.clients = _.cloneDeep(manager.clients);
-  });
-  describe('clients', function () {
+  describe('clients field', function () {
     it('should be an object with one field instance of Map', function () {
       expect(clientManager.clients).to.be.an.instanceof(Map);
       expect(Object.keys(clientManager).length).to.be.equal(1);
@@ -47,6 +43,7 @@ describe('clientManager', function () {
       clientManager.registerClient({ id: 1, field: 'field' }, { id: 1, user: 'user' });
       spy.restore();
       expect(spy.getCall(0).args[1]).to.be.deep.equal({ id: 1, user: 'user' });
+      expect(spy.getCall(0).args[0]).to.be.deep.equal({ id: 1, field: 'field' });
       expect(clientManager.clients.get(1).user).to.be.deep.equal({ id: 1, user: 'user' });
     });
   });
