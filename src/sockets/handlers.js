@@ -68,6 +68,11 @@ function makeHandleEvent (client, clientManager, roomManager) {
   }
 
   return {
+    makeSureExists,
+    makeSureClientExist,
+    makeSureValidRoom,
+    makeSureValidRoomAndUserLoggedIn,
+    makeSureValidRoomAndClientConnected,
     handleEventForLoggedUsers,
     handleEventForAllUsers,
     makeSureUserLoggedIn
