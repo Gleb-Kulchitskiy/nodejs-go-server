@@ -152,12 +152,14 @@ describe('makeHandlers', function () {
       expect(spy.calledOnce).to.be.true;
     });
   });
-  describe('handleEventForLoggedUsers(roomName, createEntry)', function () {
-    it('should addEntry to the Room, broadcast message to all room members and return room object', async () => {
+  describe.only('handleEventForLoggedUsers(roomName, createEntry)', function () {
+    it('should add entry to the Room, broadcast message to all room members and return room object', async () => {
       const roomName = 'global';
       clientManager.registerClient({ id: 1 }, { name: 'ola' });
       const client = clientManager.getClientById(1);
-      client.emit = (message, message1) => console.log('-EMIT-', message, message1);
+      const emitSpy = sinon.spy();
+      client.emit = emitSpy;
+      const broadcastSpy = sinon.spy(Room.prototype, 'broadcastMessage');
       roomManager.getRoomByName('global').addUser(client);
       const createEntry = () => ({ event: `client ${client.id} has joined in to the ${roomName}` });
       const members = new Map().set(client.id, client);
@@ -167,12 +169,15 @@ describe('makeHandlers', function () {
         members: members,
         name: 'global'
       });
+      broadcastSpy.restore();
       spy.restore();
+      expect(broadcastSpy.calledOnce).to.be.true;
+      expect(emitSpy.calledOnce).to.be.true;
       expect(spy.calledOnce).to.be.true;
     });
   });
   describe('handleEventForAllUsers (roomName, createEntry)', function () {
-    it('should add Entry to the Room, and return room object', async () => {
+    it('should add entry to the Room, and return room object', async () => {
       const roomName = 'global';
       clientManager.addClient({ id: 1 });
       const client = clientManager.getClientById(1);

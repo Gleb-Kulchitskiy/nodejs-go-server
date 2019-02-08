@@ -10,7 +10,7 @@ describe('roomManager', function () {
     roomManager.rooms = new Map([['global', new Room('global')]]);
   });
   describe('roomManager fields', function () {
-    it('should be one property called "rooms"', function () {
+    it('should have one property called "rooms"', function () {
       expect(Object.keys(roomManager).length).to.be.equal(1);
       expect(roomManager).to.have.own.property('rooms');
     });
@@ -20,7 +20,7 @@ describe('roomManager', function () {
     });
   });
   describe('addRoom', function () {
-    it('should increase rooms object size by 1', function () {
+    it('should increase the size of the room object by 1', function () {
       const roomsSize = roomManager.rooms.size;
       const spy = sinon.spy(roomManager, 'addRoom');
       roomManager.addRoom('test');
@@ -28,14 +28,14 @@ describe('roomManager', function () {
       spy.restore();
       expect(roomManager.rooms.size).to.be.equal(roomsSize + 1);
     });
-    it('added value should be instance of Room', function () {
+    it('the added value must be an instance of the room', function () {
       const spy = sinon.spy(roomManager, 'addRoom');
       roomManager.addRoom('test');
       sinon.assert.calledOnce(spy);
       spy.restore();
       expect(roomManager.rooms.get('test')).to.be.an.instanceOf(Room);
     });
-    it('new key of added value should be equal argument', function () {
+    it('new key of the added entity should be equal to the name of the argument', function () {
       const spy = sinon.spy(roomManager, 'addRoom');
       roomManager.addRoom('test');
       sinon.assert.calledOnce(spy);

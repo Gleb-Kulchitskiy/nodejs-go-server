@@ -84,22 +84,21 @@ function handlers (client, clientManager, roomManager) {
   } = makeHandleEvent(client, clientManager, roomManager);
 
   function handleJoin (roomName, callback) {
-    const createEntry = () => ({ event: `client ${client.id} has joined in to the ${roomName}` });
+    const createEntry = () => ({ event: `client ${client.id} has joined in to the ${roomName} channel` });
 
-    handleEventForAllUsers(roomName, createEntry)
+    return handleEventForAllUsers(roomName, createEntry)
       .then(function (room) {
         room.addUser(client);
-        callback(null, room.getChatHistory());
+        callback(null, room.getHistory());
       })
       .catch(callback);
   }
 
   function handleLeave (roomName, callback) {
-    const createEntry = () => ({ event: `client ${client.id} has left the ${roomName}` });
-
-    handleEventForAllUsers(roomName, createEntry)
+    const createEntry = () => ({ event: `client ${client.id} has left the ${roomName} channel` });
+    return handleEventForAllUsers(roomName, createEntry)
       .then(function (room) {
-        room.removeUser(client.id);
+        room.removeUser(client);
         callback(null);
       })
       .catch(callback);
@@ -107,14 +106,13 @@ function handlers (client, clientManager, roomManager) {
 
   function handleMessage ({ roomName, message } = {}, callback) {
     const createEntry = () => ({ message });
-
-    handleEventForLoggedUsers(roomName, createEntry)
+    return handleEventForLoggedUsers(roomName, createEntry)
       .then(() => callback(null))
       .catch(callback);
   }
 
   function handlePrivate ({ receiverClientId, message } = {}, callback) {
-    Promise.all([
+    return Promise.all([
       makeSureUserLoggedIn(receiverClientId),
       makeSureUserLoggedIn(client.id)
     ])
