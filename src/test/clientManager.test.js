@@ -23,7 +23,7 @@ describe('clientManager', function () {
       spy.restore();
       sinon.assert.calledOnce(spy);
       expect(size).to.be.equal(clientManager.clients.size - 1);
-      expect(clientManager.clients.get(1)).to.be.deep.equal({ client: { id: 1, field: 'field' } });
+      expect(clientManager.clients.get(1)).to.be.deep.equal({ id: 1, client: { id: 1, field: 'field' } });
     });
   });
   describe('registerClient', function () {
@@ -35,6 +35,7 @@ describe('clientManager', function () {
       expect(size).to.be.equal(clientManager.clients.size - 1);
       expect(clientManager.clients.get(1)).to.be.deep.equal({
         client: { id: 1, field: 'field' },
+        id: 1,
         user: { id: 1, user: 'user' }
       });
     });
@@ -97,7 +98,7 @@ describe('clientManager', function () {
       clientManager.getUserByName('name');
       spy.restore();
       expect(spy.withArgs('name').calledOnce).to.be.true;
-      expect(spy.returnValues[0]).to.be.deep.equal({ client: { id: 1 }, user: { name: 'name' } });
+      expect(spy.returnValues[0]).to.be.deep.equal({ client: { id: 1 }, id: 1, user: { name: 'name' } });
     });
     it('should return undefined if user is not exist', function () {
       const spy = sinon.spy(clientManager, 'getUserByName');
@@ -131,7 +132,7 @@ describe('clientManager', function () {
       clientManager.getClientById(1);
       spy.restore();
       expect(spy.withArgs(1).calledOnce).to.be.true;
-      expect(spy.returnValues[0]).to.be.deep.equal({ client: { id: 1 }, user: { name: 'name' } });
+      expect(spy.returnValues[0]).to.be.deep.equal({ client: { id: 1 }, id: 1, user: { name: 'name' } });
     });
     it('should return undefined if client not exist', function () {
       const spy = sinon.spy(clientManager, 'getClientById');

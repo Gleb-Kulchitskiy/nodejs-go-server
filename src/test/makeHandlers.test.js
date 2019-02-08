@@ -2,15 +2,13 @@ const sinon = require('sinon');
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
 const expect = chai.expect;
-const _ = require('lodash');
-const util = require('util');
 
 const clientManager = require('../sockets/ClientManager');
 const roomManager = require('../sockets/RoomManager');
 const makehandlers = require('../sockets/handlers').makeHandleEvent({ id: 1 }, clientManager, roomManager);
 const Room = require('../sockets/Room');
 
-describe.only('makeHandlers', function () {
+describe('makeHandlers', function () {
   beforeEach(function () {
     clientManager.clients = new Map();
     roomManager.rooms = new Map([['global', new Room('global')]]);
@@ -173,7 +171,7 @@ describe.only('makeHandlers', function () {
       expect(spy.calledOnce).to.be.true;
     });
   });
-  describe.only('handleEventForAllUsers (roomName, createEntry)', function () {
+  describe('handleEventForAllUsers (roomName, createEntry)', function () {
     it('should add Entry to the Room, and return room object', async () => {
       const roomName = 'global';
       clientManager.addClient({ id: 1 });
