@@ -1,4 +1,5 @@
 module.exports = {
+  NODE_ENV: process.NODE_ENV,
   HOST: process.env.HOST,
   PORT: process.env.PORT,
   SESSION_SECRET: process.env.SESSION_SECRET,

@@ -1,9 +1,11 @@
-require('dotenv').config();
+const config = require('dotenv').config();
 
 process.nextTick(() => {
   require('./db/postgresql');
   require('./express/app');
-  require('./fixtures');
+  if (config.NODE_ENV !== 'production') {
+    require('./fixtures');
+  }
 });
 
 module.exports = require('./config');
