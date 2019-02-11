@@ -10,7 +10,7 @@ const roomM = require('../sockets/RoomManager');
 const Room = require('../sockets/Room');
 const mainHandlers = require('../sockets/handlers').handlers;
 
-describe.only('handlers', function () {
+describe('handlers', function () {
   let handlers;
   let client;
   let clientManager;

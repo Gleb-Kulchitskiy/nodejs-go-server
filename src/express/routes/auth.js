@@ -1,8 +1,8 @@
 const Router = require('express-promise-router');
-const { passwordHash, getError } = require('../utils');
-const { query } = require('../db/postgresql');
+const { passwordHash, getError } = require('../../utils/index');
+const { query } = require('../../db/postgresql/index');
 const router = new Router();
-const passport = require('../passport');
+const passport = require('../passport/index');
 
 router.get('/login', (req, res) => {
   if (req.user) {

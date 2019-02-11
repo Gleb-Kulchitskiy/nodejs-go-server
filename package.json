@@ -4,13 +4,15 @@
   "description": "Node server for 3D Go game.",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon --watch src --exec 'NODE_ENV=development node ./src/app.js'",
+    "dev": "nodemon --watch src --exec 'NODE_ENV=development node ./src/index.js'",
     "inspect": "nodemon --inspect ./src/app.js",
     "test": "mocha ./src/test"
   },
   "author": "Gleb Kulchitskiy",
   "license": "ISC",
   "dependencies": {
+    "awaity": "^1.0.0",
+    "bcrypt": "^3.0.4",
     "chalk": "^2.4.2",
     "connect-pg-simple": "^5.0.0",
     "cors": "^2.8.5",

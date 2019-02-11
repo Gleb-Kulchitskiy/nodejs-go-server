@@ -152,8 +152,8 @@ describe('makeHandlers', function () {
       expect(spy.calledOnce).to.be.true;
     });
   });
-  describe.only('handleEventForLoggedUsers(roomName, createEntry)', function () {
-    it('should add entry to the Room, broadcast message to all room members and return room object', async () => {
+  describe('handleEventForLoggedUsers(roomName, createEntry)', function () {
+    it('should add entry to the Room, broadcast message to the all rooms members and return room object', async () => {
       const roomName = 'global';
       clientManager.registerClient({ id: 1 }, { name: 'ola' });
       const client = clientManager.getClientById(1);

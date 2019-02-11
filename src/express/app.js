@@ -1,6 +1,5 @@
 const path = require('path');
-require('dotenv').config();
-const config = require('./config');
+const config = require('../config/index');
 const http = require('http');
 const express = require('express');
 const ioServer = require('socket.io');
@@ -9,24 +8,17 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const session = require('express-session');
 const flash = require('express-flash');
-const { Pool } = require('pg');
 const PgSession = require('connect-pg-simple')(session);
 const expressValidator = require('express-validator');
 const chalk = require('chalk');
 const errorHandler = require('errorhandler');
-const passport = require('./passport');
+const passport = require('./passport/index');
 const app = express();
-const pool = new Pool({
-  user: config.PG_USER,
-  host: config.PG_HOST,
-  database: config.PG_DATABASE,
-  password: config.PG_PASSWORD,
-  port: config.PG_PORT,
-});
+const { pool}  = require('../db/postgresql');
 
 const server = http.createServer(app);
 const io = ioServer(server);
-require('./sockets')(io);
+require('../sockets/index')(io);
 
 app.use(morgan('dev'));
 app.use(helmet());
@@ -60,7 +52,7 @@ app.use('*', (req, res, next) => {
   next();
 });
 
-require('./routes').init(app);
+require('./routes/index').init(app);
 
 app.use('*', (req, res, next) => {
   res.sendFile(path.join(process.cwd(), 'src', 'public'));

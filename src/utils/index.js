@@ -1,9 +1,7 @@
 const crypto = require('crypto');
-
-exports.passwordHash = (password, salt = process.env.SALT) => {
-  return crypto.createHmac('sha256', password.toString())
-    .update(salt.toString())
-    .digest('hex');
+const config = require('../index');
+exports.passwordHash = (password, salt = config.SALT) => {
+  return crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
 };
 exports.getError = (errors = [], status) => {
   const err = new Error();

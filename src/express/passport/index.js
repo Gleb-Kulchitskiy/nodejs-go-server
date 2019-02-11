@@ -1,12 +1,12 @@
 const passport = require('passport');
-const pgQuery = require('../db/postgresql').query;
+const pgQuery = require('../../db/postgresql/index').query;
 const { Strategy: LocalStrategy } = require('passport-local');
 const { Strategy: FacebookStrategy } = require('passport-facebook');
 const { Strategy: GitHubStrategy } = require('passport-github');
-const { passwordHash } = require('../utils');
-const config = require('../config');
+const { passwordHash } = require('../../utils/index');
+const config = require('../../config/index');
 
-const { getError } = require('../utils');
+const { getError } = require('../../utils/index');
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
