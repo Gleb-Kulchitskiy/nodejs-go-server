@@ -5,7 +5,7 @@ const expect = chai.expect;
 
 const clientManager = require('../sockets/ClientManager');
 const roomManager = require('../sockets/RoomManager');
-const makehandlers = require('../sockets/handlers').makeHandleEvent({ id: 1 }, clientManager, roomManager);
+const makehandlers = require('../sockets/roomHandlers').makeHandleEvent({ id: 1 }, clientManager, roomManager);
 const Room = require('../sockets/Room');
 
 describe('makeHandlers', function () {

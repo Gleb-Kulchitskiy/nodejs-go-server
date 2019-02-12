@@ -8,7 +8,7 @@ const util = require('util');
 const clientM = require('../sockets/ClientManager');
 const roomM = require('../sockets/RoomManager');
 const Room = require('../sockets/Room');
-const mainHandlers = require('../sockets/handlers').handlers;
+const mainHandlers = require('../sockets/roomHandlers').roomHandlers;
 
 describe('handlers', function () {
   let handlers;

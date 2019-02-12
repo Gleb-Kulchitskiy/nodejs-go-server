@@ -1,10 +1,8 @@
 class Game {
-  constructor (id, player, room, size) {
+  constructor (id, player1, player2, room, size) {
     this.gameId = id;
-    this.player1 = player;
-    this.player2 = null;
-    this.white = null;
-    this.black = null;
+    this.white = player1;
+    this.black = player2;
     this.room = room.id;
     this.size = size;
     this.turn = null;
@@ -20,8 +18,27 @@ class Game {
     });
   };
 
+  getGameId () {
+    return this.gameId;
+  }
+
+  getWjitePlayer () {
+    return this.white;
+  }
+
+  getBlackPlayer () {
+    return this.black;
+  }
+
   isPointAvailable (x, y) {
     return !this.board[y - 1][x - 1];
+  }
+
+  putStone (x, y) {
+    const isFree = this.isPointAvailable(x, y);
+    return isFree
+      ? this.board[y - 1][x - 1] = this.getTurn()
+      : new Error('the place is busy');
   }
 
   getTurn () {
@@ -37,13 +54,6 @@ class Game {
     this.turn = color;
   }
 
-  putStone (x, y) {
-    const isFree = this.isPointAvailable(x, y);
-    return isFree
-      ? this.board[y - 1][x - 1] = this.getTurn()
-      : new Error('the place is busy');
-  }
-
   setColor (color, player) {
     if (color !== 'white' || color !== 'black') {
       throw new Error('color must be white or back');
@@ -53,6 +63,14 @@ class Game {
 
   setOpponentPlayer (player) {
     this.player2 = player;
+  }
+
+  serialize () {
+    return {
+      gameId: this.gameId,
+      white: this.white,
+      black: this.black
+    };
   }
 }
 

@@ -1,6 +1,6 @@
 const roomManager = require('./RoomManager');
 const clientManager = require('./ClientManager');
-const { handlers } = require('./handlers');
+const { roomHandlers } = require('./roomHandlers');
 
 module.exports = function (io) {
   io.on('connection', (client) => {
@@ -12,7 +12,7 @@ module.exports = function (io) {
       handleGetRooms,
       handleGetAvailableUsers,
       handleDisconnect
-    } = handlers(client, roomManager, clientManager);
+    } = roomHandlers(client, roomManager, clientManager);
 
     clientManager.addClient(client);
 

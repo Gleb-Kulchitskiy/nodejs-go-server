@@ -4,7 +4,7 @@
   "description": "Node server for 3D Go game.",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon --watch src --exec 'NODE_ENV=development node ./src/index.js'",
+    "dev": "cross-env NODE_ENV=development nodemon --watch src --exec node ./src/index.js",
     "inspect": "nodemon --inspect ./src/app.js",
     "test": "mocha ./src/test"
   },
@@ -36,6 +36,7 @@
     "socket.io": "^2.2.0"
   },
   "devDependencies": {
+    "cross-env": "^5.2.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "eslint": "^5.12.0",

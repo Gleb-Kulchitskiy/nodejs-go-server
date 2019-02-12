@@ -76,7 +76,7 @@ function makeHandleEvent (client, clientManager, roomManager) {
   };
 };
 
-function handlers (client, clientManager, roomManager) {
+function roomHandlers (client, clientManager, roomManager) {
   const {
     handleEventForLoggedUsers,
     handleEventForAllUsers,
@@ -151,5 +151,5 @@ function handlers (client, clientManager, roomManager) {
 
 module.exports = {
   makeHandleEvent,
-  handlers
+  roomHandlers: roomHandlers
 };
