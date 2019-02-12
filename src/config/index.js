@@ -1,4 +1,5 @@
 module.exports = {
+  NODE_ENV: process.NODE_ENV,
   HOST: process.env.HOST,
   PORT: process.env.PORT,
   SESSION_SECRET: process.env.SESSION_SECRET,
@@ -8,6 +9,8 @@ module.exports = {
   PG_PASSWORD: process.env.PG_PASSWORD,
   PG_DATABASE: process.env.PG_DATABASE,
   PG_PORT: process.env.PG_PORT,
-  FACEBOOK_ID:process.env.FACEBOOK_ID,
-  FACEBOOK_SECRET:process.env.FACEBOOK_SECRET
+  FACEBOOK_ID: process.env.FACEBOOK_ID,
+  FACEBOOK_SECRET: process.env.FACEBOOK_SECRET,
+  GITHUB_ID: process.env.GITHUB_ID,
+  GITHUB_SECRET: process.env.GITHUB_SECRET
 };

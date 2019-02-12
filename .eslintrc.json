@@ -1,14 +1,27 @@
 {
-  "extends": ["eslint:recommended", "standard"],
+  "extends": [
+    "eslint:recommended",
+    "standard"
+  ],
   "parserOptions": {
     "ecmaVersion": 2017
   },
   "env": {
     "es6": true,
-    "node": true
+    "node": true,
+    "mocha": true
   },
+  "plugins": [
+    "mocha",
+    "chai-friendly"
+  ],
   "rules": {
+    "no-unused-expressions": 0,
+    "chai-friendly/no-unused-expressions": 2,
     "no-console": "off",
-    "semi": ["error", "always"]
+    "semi": [
+      "error",
+      "always"
+    ]
   }
 }

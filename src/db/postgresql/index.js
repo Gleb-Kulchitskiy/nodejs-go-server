@@ -1,5 +1,5 @@
 const { Pool } = require('pg');
-const config = require('../../config');
+const config = require('../../index');
 const pool = new Pool({
   user: config.PG_USER,
   host: config.PG_HOST,
@@ -10,5 +10,6 @@ const pool = new Pool({
 
 module.exports = {
   query: (text, params) => pool.query(text, params),
-  getClient: () => pool.connect()
+  getClient: () => pool.connect(),
+  pool
 };
