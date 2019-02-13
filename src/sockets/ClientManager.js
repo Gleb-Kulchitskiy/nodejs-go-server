@@ -38,6 +38,10 @@ class ClientManager {
   getClientById (id) {
     return this.clients.get(id);
   }
+
+  serialize () {
+    return [...this.clients.values()];
+  }
 }
 
 module.exports = new ClientManager();

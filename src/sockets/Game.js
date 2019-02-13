@@ -1,28 +1,52 @@
 class Game {
-  constructor (id, player1, player2, room, size) {
+  constructor (id, type, player1, player2, room, size) {
     this.gameId = id;
+    this.type = type;
     this.white = player1;
     this.black = player2;
     this.room = room.id;
     this.size = size;
-    this.turn = null;
+    this._round = null;
     this.history = [];
-    this.board = this.createDataStrcure(size - 1);
+    this.board = this.createDataStrucure(size - 1);
+    this.winner = null;
   }
 
-  createDataStrcure (size) {
+  get round () {
+    return this._round;
+  }
+
+  set round (color) {
+    if ((color === 'white') || (color === 'black')) {
+      this._round = color;
+    } else {
+      return new Error(`a move can only belong to a white or black player, but have ${color} color`);
+    }
+  }
+
+  getPlayerColor (player) {
+    return this.white === player.id
+      ? 'white'
+      : 'black';
+  }
+
+  createDataStrucure (size) {
     const board = new Array(size);
     board.fill(0);
     return board.map(() => {
       return new Array(size).fill(0);
     });
-  };
+  }
+
+  getRoomId () {
+    return this.room;
+  }
 
   getGameId () {
     return this.gameId;
   }
 
-  getWjitePlayer () {
+  getWhitePlayer () {
     return this.white;
   }
 
@@ -35,23 +59,18 @@ class Game {
   }
 
   putStone (x, y) {
-    const isFree = this.isPointAvailable(x, y);
-    return isFree
-      ? this.board[y - 1][x - 1] = this.getTurn()
-      : new Error('the place is busy');
+    this.board[y - 1][x - 1] = this.getRound() === 'black' ? 1 : 2;
   }
 
-  getTurn () {
-    return this.turn === 'white'
-      ? 1
-      : 2;
+  getRound () {
+    return this.round;
   }
 
-  switchTurn (color) {
-    if (color === this.turn) {
+  switchRound (color) {
+    if (color === this.round) {
       throw new Error('Player can not make the move twice in a row.');
     }
-    this.turn = color;
+    this.round = color;
   }
 
   setColor (color, player) {

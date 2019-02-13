@@ -18,11 +18,19 @@ async function init () {
    created_on timestamp with time zone NOT NULL DEFAULT now()
    );`);
 
-    await each(users, async ({ name, email, password, facebook, twitter, github, profle, tokens }) => {
+    await query(`DROP TABLE IF EXISTS players_statistics;`);
+    await query(`CREATE TABLE players_statistics(
+    id serial PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    win INTEGER,
+    loss INTEGER,
+    rank INTEGER
+    );`);
+    await each(users, async ({ name, email, password, facebook, twitter, github, profile, tokens }) => {
       await query(
         `INSERT INTO users (name,email,password,facebook,github,twitter,tokens,profile) 
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8);`,
-        [name, email, password, facebook, github, twitter, tokens, profle]
+        [name, email, password, facebook, github, twitter, tokens, profile]
       );
     });
   } catch (e) {

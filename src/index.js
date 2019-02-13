@@ -8,4 +8,10 @@ process.nextTick(() => {
   }
 });
 
+process.on('uncaughtException', function (err) {
+  console.log('Caught exception: ' + err);
+  console.log(err.stack);
+  process.exit(1);
+});
+
 module.exports = require('./config');

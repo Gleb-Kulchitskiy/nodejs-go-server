@@ -1,4 +1,4 @@
-const Game = require('Game');
+const Game = require('./Game');
 
 class GameManager {
   constructor () {
@@ -9,16 +9,19 @@ class GameManager {
     return this.games.get(id);
   }
 
-  getGames () {
-    const map = {};
-    this.games.forEach((val, key) => {
-      map[key] = val;
-    });
-    return map;
+  getGameByPlayerId (playerId) {
+    return this.getGames()
+      .find(game => {
+        return playerId === game.getBlackPlayer() || playerId === game.getWhitePlayer();
+      });
   }
 
-  addGame (id, player1, player2, room, size) {
-    this.games.set(id, new Game(id, player1, player2, room, size));
+  getGames () {
+    return [...this.games.values()];
+  }
+
+  addGame (id, type, player1, player2, room, size) {
+    this.games.set(id, new Game(id, type, player1, player2, room, size));
   }
 
   removeGame (id) {
@@ -28,6 +31,7 @@ class GameManager {
   serialize () {
     return [...this.games.values].map((game) => game.serialize());
   }
+
 
 }
 
