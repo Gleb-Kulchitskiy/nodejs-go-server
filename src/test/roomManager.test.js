@@ -2,8 +2,8 @@ const expect = require('chai').expect;
 const sinon = require('sinon');
 const _ = require('lodash');
 
-const roomManager = require('../sockets/RoomManager');
-const Room = require('../sockets/Room');
+const roomManager = require('../core/room/roomManager');
+const Room = require('../models/Room');
 
 describe('roomManager', function () {
   beforeEach(function () {

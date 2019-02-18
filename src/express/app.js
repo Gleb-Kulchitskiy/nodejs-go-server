@@ -14,7 +14,7 @@ const chalk = require('chalk');
 const errorHandler = require('errorhandler');
 const passport = require('./passport/index');
 const app = express();
-const { pool}  = require('../db/postgresql');
+const { pool } = require('../db/postgresql');
 
 const server = http.createServer(app);
 const io = ioServer(server);
@@ -78,7 +78,7 @@ if (process.env.NODE_ENV === 'development') {
   });
 }
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log(`Server listening on Host: ${chalk.green(process.env.HOST)} and Port: ${chalk.blue(process.env.PORT)} in
   mode: ${chalk.yellow(process.env.NODE_ENV)}`);
 });

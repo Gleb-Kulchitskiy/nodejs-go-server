@@ -1,7 +1,7 @@
 const expect = require('chai').expect;
 const sinon = require('sinon');
 
-const Room = require('../sockets/Room');
+const Room = require('../models/Room');
 
 describe('Room class', function () {
   let room;

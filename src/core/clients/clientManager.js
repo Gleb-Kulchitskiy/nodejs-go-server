@@ -18,7 +18,7 @@ class ClientManager {
   getAvailableUsers () {
     return [...this.clients.values()]
       .filter(client => client.user)
-      .map(client => client.user.name);
+      .map(client => client.user.id);
   }
 
   isUserAvailable (userName) {

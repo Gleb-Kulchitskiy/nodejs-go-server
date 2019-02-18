@@ -5,10 +5,10 @@ const expect = chai.expect;
 const _ = require('lodash');
 const util = require('util');
 
-const clientM = require('../sockets/ClientManager');
-const roomM = require('../sockets/RoomManager');
-const Room = require('../sockets/Room');
-const mainHandlers = require('../sockets/roomHandlers').roomHandlers;
+const clientM = require('../core/clients/clientManager');
+const roomM = require('../core/room/roomManager');
+const Room = require('../models/Room');
+const mainHandlers = require('../core/handlers/room/roomHandlers').roomHandlers;
 
 describe('handlers', function () {
   let handlers;
@@ -50,7 +50,7 @@ describe('handlers', function () {
       expect(callback.calledOnce).to.be.true;
       expect(callback.getCall(0).args[0]).to.be.null;
       expect(callback.getCall(0).args[1]).to.be.deep.equal(
-        ['{id:1,client:{id:1},user:{name:Ola},event:client 1 has joined in to the global channel}']);
+        ['{id:1,clients:{id:1},user:{name:Ola},event:clients 1 has joined in to the global channel}']);
       expect(roomManager.getRoomByName('global').members.size).to.be.equal(globalRoomSize + 1);
       expect(spy.calledOnce).to.be.true;
       expect(addUserSpy.calledOnce).to.be.true;

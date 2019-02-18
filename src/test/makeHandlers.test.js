@@ -3,10 +3,10 @@ const chai = require('chai');
 chai.use(require('chai-as-promised'));
 const expect = chai.expect;
 
-const clientManager = require('../sockets/ClientManager');
-const roomManager = require('../sockets/RoomManager');
-const makehandlers = require('../sockets/roomHandlers').makeHandleEvent({ id: 1 }, clientManager, roomManager);
-const Room = require('../sockets/Room');
+const clientManager = require('../core/clients/clientManager');
+const roomManager = require('../core/room/roomManager');
+const makehandlers = require('../core/handlers/room/roomHandlers').roomHandleEvents({ id: 1 }, clientManager, roomManager);
+const Room = require('../models/Room');
 
 describe('makeHandlers', function () {
   beforeEach(function () {
@@ -51,7 +51,7 @@ describe('makeHandlers', function () {
     });
   });
   describe('makeSureClientExist(clientId)', function () {
-    it('should return client object if client connected', async () => {
+    it('should return clients object if clients connected', async () => {
       clientManager.registerClient({ id: 1 }, { name: 'Ola' });
       const spy = sinon.spy(makehandlers, 'makeSureClientExist');
       await expect(makehandlers.makeSureClientExist(1)).to.become({
@@ -62,9 +62,9 @@ describe('makeHandlers', function () {
       spy.restore();
       expect(spy.calledOnce).to.be.true;
     });
-    it('should return rejected message client not connected', async () => {
+    it('should return rejected message clients not connected', async () => {
       const spy = sinon.spy(makehandlers, 'makeSureClientExist');
-      await expect(makehandlers.makeSureClientExist(1)).to.be.rejectedWith('client do not connected');
+      await expect(makehandlers.makeSureClientExist(1)).to.be.rejectedWith('clients do not connected');
       spy.restore();
       expect(spy.calledOnce).to.be.true;
     });
@@ -121,7 +121,7 @@ describe('makeHandlers', function () {
     });
   });
   describe('makeSureValidRoomAndClientConnected(roomName)', function () {
-    it('should return room object and client object if room exist and client connected', async () => {
+    it('should return room object and clients object if room exist and clients connected', async () => {
       const spy = sinon.spy(makehandlers, 'makeSureValidRoomAndClientConnected');
       clientManager.addClient({ id: 1 });
       const client = clientManager.getClientById(1);
@@ -145,9 +145,9 @@ describe('makeHandlers', function () {
       spy.restore();
       expect(spy.calledOnce).to.be.true;
     });
-    it('should reject with "client do not connected" message if client dont connected', async () => {
+    it('should reject with "clients do not connected" message if clients dont connected', async () => {
       const spy = sinon.spy(makehandlers, 'makeSureValidRoomAndClientConnected');
-      await expect(makehandlers.makeSureValidRoomAndClientConnected('global')).to.be.rejectedWith('client do not connected');
+      await expect(makehandlers.makeSureValidRoomAndClientConnected('global')).to.be.rejectedWith('clients do not connected');
       spy.restore();
       expect(spy.calledOnce).to.be.true;
     });
@@ -165,7 +165,7 @@ describe('makeHandlers', function () {
       const members = new Map().set(client.id, client);
       const spy = sinon.spy(makehandlers, 'handleEventForLoggedUsers');
       await expect(makehandlers.handleEventForLoggedUsers('global', createEntry)).to.become({
-        history: ['{user:{name:ola},event:client 1 has joined in to the global}'],
+        history: ['{user:{name:ola},event:clients 1 has joined in to the global}'],
         members: members,
         name: 'global'
       });
@@ -186,7 +186,7 @@ describe('makeHandlers', function () {
       const members = new Map().set(client.id, client);
       const spy = sinon.spy(makehandlers, 'handleEventForAllUsers');
       await expect(makehandlers.handleEventForAllUsers('global', createEntry)).to.become({
-        history: ['{id:1,client:{id:1},event:client 1 has joined in to the global}'],
+        history: ['{id:1,clients:{id:1},event:clients 1 has joined in to the global}'],
         members: members,
         name: 'global'
       });

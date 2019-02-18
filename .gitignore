@@ -10,6 +10,7 @@ node_modules
 #tmp files
 src/tmp.js
 src/test.js
+src/tmp/
 
 # build
 public

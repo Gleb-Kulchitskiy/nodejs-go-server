@@ -4,7 +4,7 @@ const users = require('./users');
 
 async function init () {
   try {
-    await query('DROP TABLE IF EXISTS users;');
+    await query('DROP TABLE IF EXISTS users CASCADE;');
     await query(`CREATE TABLE users(
    id serial PRIMARY KEY,
    name VARCHAR (50) NOT NULL,
@@ -30,7 +30,7 @@ async function init () {
       await query(
         `INSERT INTO users (name,email,password,facebook,github,twitter,tokens,profile) 
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8);`,
-        [name, email, password, facebook, github, twitter, tokens, profile]
+        [name, email, password, facebook, github, twitter, tokens, JSON.stringify(profile)]
       );
     });
   } catch (e) {

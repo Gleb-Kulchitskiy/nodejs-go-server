@@ -2,7 +2,7 @@ const expect = require('chai').expect;
 const sinon = require('sinon');
 const _ = require('lodash');
 
-const clientManager = require('../sockets/ClientManager');
+const clientManager = require('../core/clients/clientManager');
 
 describe('clientManager', function () {
   let size;
@@ -17,7 +17,7 @@ describe('clientManager', function () {
     });
   });
   describe('addClient', function () {
-    it('should add client instance to clients Map by client id', function () {
+    it('should add clients instance to clients Map by clients id', function () {
       const spy = sinon.spy(clientManager, 'addClient');
       clientManager.addClient({ id: 1, field: 'field' });
       spy.restore();
@@ -27,7 +27,7 @@ describe('clientManager', function () {
     });
   });
   describe('registerClient', function () {
-    it('should add client instance to clients Map by client id', function () {
+    it('should add clients instance to clients Map by clients id', function () {
       const spy = sinon.spy(clientManager, 'registerClient');
       clientManager.registerClient({ id: 1, field: 'field' }, { id: 1, user: 'user' });
       spy.restore();
@@ -39,7 +39,7 @@ describe('clientManager', function () {
         user: { id: 1, user: 'user' }
       });
     });
-    it('arguments should contain client and user objects', function () {
+    it('arguments should contain clients and user objects', function () {
       const spy = sinon.spy(clientManager, 'registerClient');
       clientManager.registerClient({ id: 1, field: 'field' }, { id: 1, user: 'user' });
       spy.restore();
@@ -49,7 +49,7 @@ describe('clientManager', function () {
     });
   });
   describe('removeClient', function () {
-    it('should remove instance from clients map by client id', function () {
+    it('should remove instance from clients map by clients id', function () {
       clientManager.registerClient({ id: 1, field: 'field' }, { id: 123, name: 'name' });
       size = clientManager.clients.size;
       const spy = sinon.spy(clientManager, 'removeClient');
@@ -109,7 +109,7 @@ describe('clientManager', function () {
     });
   });
   describe('getUserByClientId', function () {
-    it('should return user by client id', function () {
+    it('should return user by clients id', function () {
       clientManager.registerClient({ id: 1 }, { name: 'name' });
       const spy = sinon.spy(clientManager, 'getUserByClientId');
       clientManager.getUserByClientId(1);
@@ -126,7 +126,7 @@ describe('clientManager', function () {
     });
   });
   describe('getClientById', function () {
-    it('should return client by client id', function () {
+    it('should return clients by clients id', function () {
       clientManager.registerClient({ id: 1 }, { name: 'name' });
       const spy = sinon.spy(clientManager, 'getClientById');
       clientManager.getClientById(1);
@@ -134,7 +134,7 @@ describe('clientManager', function () {
       expect(spy.withArgs(1).calledOnce).to.be.true;
       expect(spy.returnValues[0]).to.be.deep.equal({ client: { id: 1 }, id: 1, user: { name: 'name' } });
     });
-    it('should return undefined if client not exist', function () {
+    it('should return undefined if clients not exist', function () {
       const spy = sinon.spy(clientManager, 'getClientById');
       clientManager.getClientById(1);
       spy.restore();

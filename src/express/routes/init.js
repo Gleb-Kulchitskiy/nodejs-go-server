@@ -1,6 +1,6 @@
 const Router = require('express-promise-router');
 const router = new Router();
-const clientManager = require('../../sockets/ClientManager');
+const clientManager = require('../../core/clients/clientManager');
 
 router.get('/users', (req, res) => {
   const users = clientManager.serialize();
