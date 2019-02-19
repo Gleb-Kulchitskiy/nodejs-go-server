@@ -22,7 +22,6 @@ const {
 
 module.exports = function (io) {
   io.on('connection', (client) => {
-    console.log('-CIENT-')
     clientManager.addClient(client);
 
     client.on('message', handleMessage({ client, roomManager, clientManager }));
@@ -37,7 +36,7 @@ module.exports = function (io) {
 
     client.on('availableUsers', handleGetAvailableUsers({ clientManager }));
 
-    client.on('handleInvite', handleInvite({
+    client.on('invite', handleInvite({
       client,
       gameManager,
       roomManager,

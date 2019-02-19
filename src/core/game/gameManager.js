@@ -62,7 +62,7 @@ class GameManager extends EventEmitter {
   }
 
   serialize () {
-    return [...this.games.values].map((game) => game.serialize());
+    return [...this.games.values].map(game => game.serialize());
   }
 }
 

@@ -1,5 +1,5 @@
 const authRouter = require('./auth');
-const initRouter = require('./init');
+const initRouter = require('./main');
 
 module.exports.init = (app) => {
   app.use('/auth', authRouter);

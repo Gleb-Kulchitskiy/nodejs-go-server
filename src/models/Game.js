@@ -88,7 +88,11 @@ class Game {
     return {
       gameId: this.gameId,
       white: this.white,
-      black: this.black
+      black: this.black,
+      type: this.type,
+      size: this.size,
+      round: this._round,
+      winner: this.winner
     };
   }
 }
