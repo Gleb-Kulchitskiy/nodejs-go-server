@@ -13,21 +13,24 @@ router.get('/login', (req, res) => {
 });
 
 router.post('/login',
-  (req, res, next) => {
-    req.assert('email', 'Email is not valid').isEmail();
-    req.assert('password', 'Password cannot be blank').notEmpty();
-    req.sanitize('email').normalizeEmail({ gmail_remove_dots: false });
+   /* (req, res, next) => {
+      req.assert('email', 'Email is not valid').isEmail();
+      req.assert('password', 'Password cannot be blank').notEmpty();
+      console.log('--',req.body)
+      console.log('--',req.params)
 
-    const errors = req.validationErrors();
-    if (errors) {
-      const err = getError(errors, 400);
-      return next(err);
-    }
+      const errors = req.validationErrors();
+      console.log('-ERRORs-',errors)
+      if (errors) {
+        const err = getError(errors, 400);
+        return next(err);
+      }
 
-    next();
-  },
+      next();
+    },*/
   passport.authenticate('local'),
   (req, res, next) => {
+    console.log('-req-',req.user)
     if (req.user) {
       res.json({ user: req.user });
     } else {

@@ -7,6 +7,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const session = require('express-session');
+const bodyParser = require('body-parser');
 const flash = require('express-flash');
 const PgSession = require('connect-pg-simple')(session);
 const expressValidator = require('express-validator');
@@ -24,10 +25,12 @@ app.use(morgan('dev'));
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded());
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors({
-  origin: true,
+  origin: 'http://localhost:8080',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true
 }));
 app.use(expressValidator());
 app.use(session({

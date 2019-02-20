@@ -15,7 +15,7 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (id, done) => {
   let user;
   try {
-    const data = await pgQuery('SELECT id, first_name, last_name, email FROM users WHERE id=$1', [id]);
+    const data = await pgQuery('SELECT id, name, email FROM users WHERE id=$1', [id]);
     user = data.rows[0];
   } catch (e) {
     done(e);
@@ -27,7 +27,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use('local', new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
   let user;
   try {
-    const data = await pgQuery('SELECT id, first_name, last_name, email, password, is_anonymous FROM users WHERE email=$1', [email]);
+    const data = await pgQuery('SELECT id, name, email, password FROM users WHERE email=$1', [`${email}`]);
     user = data.rows[0];
   } catch (e) {
     done(e);
