@@ -20,7 +20,7 @@ router.get('/users', async (req, res) => {
 
 router.get('/user:id',
   (req, res, next) => {
-    param('id', 'id must be a number').isDecimal();
+    param('id', 'id must be a number').isNumeric();
     const result = validationResult(req).array();
     if (result.length) {
       const error = getError(result, 400);

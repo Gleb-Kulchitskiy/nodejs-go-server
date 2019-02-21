@@ -37,7 +37,7 @@ passport.use('local', new LocalStrategy({ usernameField: 'email' }, async (email
   }
   const isMatch = passwordHash(password) === user.password;
   isMatch
-    ? done(null, user)
+    ? done(null, { id: user.id, email: user.email, name: user.name })
     : done(null, false, { msg: 'Invalid email or password.' });
 }));
 

@@ -1,11 +1,10 @@
 const config = require('dotenv').config();
 
-process.nextTick(() => {
-  require('./db/postgresql');
-  require('./express/app');
+setImmediate(async () => {
   if (config.NODE_ENV !== 'production') {
-    require('./fixtures');
+    await require('./fixtures');
   }
+  require('./express/app');
 });
 
 process.on('uncaughtException', function (err) {

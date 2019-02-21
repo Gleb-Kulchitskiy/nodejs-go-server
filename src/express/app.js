@@ -3,14 +3,11 @@ const config = require('../config/index');
 const http = require('http');
 const express = require('express');
 const ioServer = require('socket.io');
-const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const session = require('express-session');
-const bodyParser = require('body-parser');
 const flash = require('express-flash');
 const PgSession = require('connect-pg-simple')(session);
-const expressValidator = require('express-validator');
 const chalk = require('chalk');
 const errorHandler = require('errorhandler');
 const passport = require('./passport/index');
@@ -24,15 +21,8 @@ require('../sockets/index')(io);
 app.use(morgan('dev'));
 app.use(helmet());
 app.use(express.json());
-app.use(express.urlencoded());
-app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors({
-  origin: 'http://localhost:8080',
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true
-}));
-app.use(expressValidator());
 app.use(session({
   resave: true,
   saveUninitialized: true,
@@ -61,25 +51,12 @@ app.use('*', (req, res, next) => {
   res.sendFile(path.join(process.cwd(), 'src', 'public'));
 });
 
-if (process.env.NODE_ENV === 'development') {
-  // eslint-disable-next-line no-unused-vars
-  app.use((err, req, res, next) => {
-    if (err.status)
-      res.status(err.status).send(err.msg);
-    else
-    // only use in development
-      app.use(errorHandler());
-  });
-
-} else {
-  // eslint-disable-next-line no-unused-varsF
-  app.use((err, req, res, next) => {
-    if (err.status)
-      res.status(err.status).send(err.msg);
-    else
-      res.status(500).send('Server Error');
-  });
-}
+// eslint-disable-next-line no-unused-varsF
+app.use((err, req, res, next) => {
+  console.log('-ERR-',err)
+  if (err.status) res.status(err.status).send(err.message);
+  else res.status(500).send('Server Error');
+});
 
 server.listen(process.env.PORT, () => {
   console.log(`Server listening on Host: ${chalk.green(process.env.HOST)} and Port: ${chalk.blue(process.env.PORT)} in

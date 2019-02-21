@@ -1,8 +1,10 @@
-const Router = require('express-promise-router');
+//const router = require('express-promise-router')();
+const express = require('express');
 const { passwordHash, getError } = require('../../utils/index');
 const { query } = require('../../db/postgresql/index');
-const router = new Router();
+const { body, validationResult, buildCheckFunction } = require('express-validator/check');
 const passport = require('../passport/index');
+const router = express.Router();
 
 router.get('/login', (req, res) => {
   if (req.user) {
@@ -13,30 +15,27 @@ router.get('/login', (req, res) => {
 });
 
 router.post('/login',
-   /* (req, res, next) => {
-      req.assert('email', 'Email is not valid').isEmail();
-      req.assert('password', 'Password cannot be blank').notEmpty();
-      console.log('--',req.body)
-      console.log('--',req.params)
-
-      const errors = req.validationErrors();
-      console.log('-ERRORs-',errors)
-      if (errors) {
-        const err = getError(errors, 400);
-        return next(err);
-      }
-
-      next();
-    },*/
+  [
+    body('email', 'email should be valid').isEmail(),
+    body('password', 'password should be equal or grater then 5').isLength({ min: 5 })
+  ],
+  (req, res, next) => {
+    const result = validationResult(req).array();
+    if (result.length) {
+      const error = getError(result, 400);
+      next(error);
+    }
+    next();
+  },
   passport.authenticate('local'),
   (req, res, next) => {
-    console.log('-req-',req.user)
     if (req.user) {
       res.json({ user: req.user });
     } else {
       next(new Error('something went wrong'));
     }
-  });
+  }
+);
 
 router.get('/logout', (req, res) => {
   req.logout();
@@ -61,31 +60,30 @@ router.get('/auth/github/callback', passport.authenticate('github', { failureRed
 });
 
 router.post('/singup',
+  [
+    body('name', 'name should be a string and its lents should be grater then 2').isString().isLength({ min: 3 }),
+    body('email', 'email should be valid').isEmail(),
+    body('password', 'password should be equal or grater the 5').isLength({ min: 5 }),
+  ],
   (req, res, next) => {
-    req.assert('email', 'Email is not valid').isEmail();
-    req.assert('password', 'Password must be at least 6 characters long').len(6);
-    req.assert('confirmPassword', 'Passwords do not match').equals(req.body.password);
-    req.sanitize('email').normalizeEmail({ gmail_remove_dots: false });
-
-    const errors = req.validationErrors();
-    console.log('-errore-', errors);
-    if (errors) {
-      const err = getError(errors, 400);
-      return next(err);
+    const result = validationResult(req).array();
+    console.log('-validator-', result);
+    if (result.length) {
+      const error = getError(result, 400);
+      next(error);
     }
     next();
   },
-
   async (req, res, next) => {
-    const { email, password, firstName = null, lastName = null } = req.body;
+    const { email, password, name } = req.body;
     let user;
     try {
-      const data = await query('SELECT id FROM users WHERE email=$1', [email]);
+      const data = await query('SELECT id FROM users WHERE email=$1;', [`${email}`]);
       user = data.rows[0];
     } catch (e) {
       return next(e);
     }
-
+    console.log('-user-', user);
     if (user) {
       const err = getError([{ msg: 'user already exist' }], 409);
       return next(err);
@@ -93,48 +91,20 @@ router.post('/singup',
       const hashedPassword = passwordHash(password);
       let user;
       try {
-        const data = await query('INSERT INTO users (first_name, last_name, email, password, is_anonymous) VALUES ($1, $2, $3, $4, $5) RETURNING*;',
-          [firstName, lastName, email, hashedPassword, 0]);
+        const data = await query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING*;',
+          [name, email, hashedPassword]);
         user = data.rows[0];
       } catch (e) {
         return next(e);
       }
+      delete user.password;
       req.logIn(user, (err) => {
         if (err) return next(err);
         return res.json({ user: req.user });
       });
     }
-  });
-
-router.post('/singupanonymous', async (req, res, next) => {
-  const { firstName } = req.body;
-  const email = firstName;
-  let user;
-  try {
-    const data = await query('SELECT id FROM users WHERE email=$1', [email]);
-    user = data.rows[0];
-  } catch (e) {
-    return next(e);
   }
-
-  if (user) {
-    const err = getError([{ msg: 'userName already busy' }], 409);
-    return next(err);
-  } else {
-    let user;
-    try {
-      const data = await query('INSERT INTO users (first_name, email, is_anonymous) VALUES ($1, $2, $3) RETURNING*;',
-        [firstName, email, 1]);
-      user = data.rows[0];
-    } catch (e) {
-      return next(e);
-    }
-    req.logIn(user, (err) => {
-      if (err) return next(err);
-      return res.json({ user: req.user });
-    });
-  }
-})
+)
 ;
 
 module.exports = router;
