@@ -1,6 +1,9 @@
 const CommonHandlers = require('../commonHandlers/index');
 
 class RoomHandleEvents extends CommonHandlers {
+  constructor () {
+    super();
+  }
 
   makeSureValidRoom ({ roomName, roomManager }) {
     return super.makeSure(
@@ -47,10 +50,14 @@ class RoomHandleEvents extends CommonHandlers {
 ;
 
 class RoomHandlers extends RoomHandleEvents {
+  constructor () {
+    super();
+  }
+
   handleJoin ({ client, roomManager, clientManager }) {
     return (roomName, callback) => {
       const createEntry = () => ({ event: `client ${client.id} has joined in to the ${roomName} channel` });
-
+console.log('-super-',this)
       return super.handleEventForAllUsers({ roomName, createEntry, client, roomManager, clientManager })
         .then(function (room) {
           room.addUser(client);
@@ -81,7 +88,7 @@ class RoomHandlers extends RoomHandleEvents {
     };
   }
 
-  handlePrivate ({client, clientManager}) {
+  handlePrivate ({ client, clientManager }) {
     return ({ receiverClientId, message } = {}, callback) => {
       return Promise.all([
         super.makeSureUserLoggedIn({ client: { id: receiverClientId }, clientManager }),
@@ -97,19 +104,19 @@ class RoomHandlers extends RoomHandleEvents {
     };
   }
 
-  handleGetRooms ({roomManager}) {
+  handleGetRooms ({ roomManager }) {
     return (_, callback) => {
       return callback(null, roomManager.serializeRooms());
     };
   }
 
-  handleGetAvailableUsers ({clientManager}) {
+  handleGetAvailableUsers ({ clientManager }) {
     return (_, callback) => {
       return callback(null, clientManager.getAvailableUsers());
     };
   }
 
-  handleDisconnect ({client, roomManager, clientManager}) {
+  handleDisconnect ({ client, roomManager, clientManager }) {
     return () => {
       clientManager.removeClient(client);
       roomManager.removeClient(client);

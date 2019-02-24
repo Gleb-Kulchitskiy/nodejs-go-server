@@ -28,18 +28,18 @@ class GameManager extends EventEmitter {
     this.games.set(id, new Game({ id, type, player1, player2, room, size }));
   }
 
-  startNewGame ({ type, player1, player2, size, roomManager, clientManager, handleEventForAllUsers }) {
+  startNewGame ({ type, player1, player2, size, roomManager, clientManager, roomHandlers }) {
     const id = uniqid();
     roomManager.addRoom(id);
     const gameRoom = roomManager.getRoomByName(id);
     const createEntry = () => ({ event: `client ${player1.id} has joined in to the ${id} channel` });
     Promise.all([
-      handleEventForAllUsers({ id, createEntry, client: { ...player1 }, roomManager, clientManager })
+      roomHandlers.handleEventForAllUsers({ id, createEntry, client: { ...player1 }, roomManager, clientManager })
         .then(function (room) {
           room.addUser(player1);
           console.log(room.getHistory());
         }),
-      handleEventForAllUsers({ id, createEntry, client: { ...player2 }, roomManager, clientManager })
+      roomHandlers.handleEventForAllUsers({ id, createEntry, client: { ...player2 }, roomManager, clientManager })
         .then(function (room) {
           room.addUser(player2);
           console.log(room.getHistory());

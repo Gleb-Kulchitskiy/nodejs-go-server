@@ -1,0 +1,7 @@
+.top
+    p.logo Go game
+    .login
+        if user
+            button(type="button" class="btn btn-light" onclick='onLogoutClick()') logout
+        else
+            button(type="button" class="btn btn-light" onclick='onLoginClick()') login

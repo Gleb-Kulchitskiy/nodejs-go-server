@@ -4,49 +4,37 @@ const gameManager = require('../core/game/gameManager');
 const RoomHandlers = require('../core/handlers/room/roomHandlers');
 const GameHandlers = require('../core/handlers/game/gameHandlers');
 
-const {
-  handleJoin,
-  handleLeave,
-  handleMessage,
-  handlePrivate,
-  handleGetRooms,
-  handleGetAvailableUsers,
-  handleDisconnect,
-  handleEventForAllUsers,
-  handleEventForLoggedUsers
-} = new RoomHandlers();
+const roomHandlers = new RoomHandlers();
 
-const {
-  handleInvite
-} = new GameHandlers();
+const gameHandlers = new GameHandlers();
 
 module.exports = function (io) {
   io.on('connection', (client) => {
     clientManager.addClient(client);
 
-    client.on('message', handleMessage({ client, roomManager, clientManager }));
+    client.on('message', roomHandlers.handleMessage({ client, roomManager, clientManager }));
 
-    client.on('private', handlePrivate({ client, clientManager }));
+    client.on('private', roomHandlers.handlePrivate({ client, clientManager }));
 
-    client.on('join', handleJoin({ client, roomManager, clientManager }));
+    client.on('join', roomHandlers.handleJoin({ client, roomManager, clientManager }));
 
-    client.on('leave', handleLeave({ client, roomManager, clientManager }));
+    client.on('leave', roomHandlers.handleLeave({ client, roomManager, clientManager }));
 
-    client.on('rooms', handleGetRooms({ roomManager }));
+    client.on('rooms', roomHandlers.handleGetRooms({ roomManager }));
 
-    client.on('availableUsers', handleGetAvailableUsers({ clientManager }));
+    client.on('availableUsers', roomHandlers.handleGetAvailableUsers({ clientManager }));
 
-    client.on('invite', handleInvite({
+    client.on('invite', gameHandlers.handleInvite({
       client,
       gameManager,
       roomManager,
       clientManager,
-      handleEventForLoggedUsers
+      roomHandlers
     }));
 
     client.on('disconnect', function () {
       console.log('clients disconnect...', client.id);
-      handleDisconnect({ client, roomManager, clientManager });
+      roomHandlers.handleDisconnect({ client, roomManager, clientManager });
     });
 
     client.on('error', function (err) {

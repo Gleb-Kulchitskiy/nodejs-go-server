@@ -1,5 +1,5 @@
 module.exports = {
-  NODE_ENV: process.NODE_ENV,
+  NODE_ENV: process.env.NODE_ENV,
   HOST: process.env.HOST,
   PORT: process.env.PORT,
   SESSION_SECRET: process.env.SESSION_SECRET,
@@ -12,5 +12,6 @@ module.exports = {
   FACEBOOK_ID: process.env.FACEBOOK_ID,
   FACEBOOK_SECRET: process.env.FACEBOOK_SECRET,
   GITHUB_ID: process.env.GITHUB_ID,
-  GITHUB_SECRET: process.env.GITHUB_SECRET
+  GITHUB_SECRET: process.env.GITHUB_SECRET,
+  SERVER_RENDERING: process.env.SERVER_RENDERING
 };

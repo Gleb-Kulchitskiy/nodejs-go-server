@@ -91,7 +91,7 @@ class Game {
       black: this.black,
       type: this.type,
       size: this.size,
-      round: this._round,
+      round: this.round,
       winner: this.winner
     };
   }

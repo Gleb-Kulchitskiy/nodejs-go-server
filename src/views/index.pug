@@ -1,0 +1,24 @@
+doctype html
+html
+    include head
+    body
+        include top
+        footer
+            .container
+                .content
+                    p
+                        | Powered by
+        script.
+          function onLoginClick () {
+            window.location.href = '/login'
+          }
+          const socket = io('http://localhost:3000');
+          socket.emit('message', { roomName: 'global', message: 'Ola' }, function (err, data) {
+            if (err) {
+              console.log(err)
+            }
+            console.log(data)
+          })
+          function onLogoutClick () {
+            window.location.href = '/auth/logout'
+          }

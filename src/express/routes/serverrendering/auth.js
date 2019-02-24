@@ -1,18 +1,9 @@
-//const router = require('express-promise-router')();
 const express = require('express');
-const { passwordHash, getError } = require('../../utils/index');
-const { query } = require('../../db/postgresql/index');
-const { body, validationResult, buildCheckFunction } = require('express-validator/check');
-const passport = require('../passport/index');
+const { passwordHash, getError } = require('../../../utils/index');
+const { query } = require('../../../db/postgresql/index');
+const { body, validationResult } = require('express-validator/check');
+const passport = require('../../passport/index');
 const router = express.Router();
-
-router.get('/login', (req, res) => {
-  if (req.user) {
-    return res.json(req.user);
-  } else {
-    return res.status(401).send('unauthorized');
-  }
-});
 
 router.post('/login',
   [
@@ -22,19 +13,19 @@ router.post('/login',
   (req, res, next) => {
     const result = validationResult(req).array();
     if (result.length) {
-      const error = getError(result, 400);
-      next(error);
+      result.forEach(obj => {
+        req.flash('validationError', ` ${obj.msg}`);
+      });
+      return res.redirect('/login');
     }
     next();
   },
-  passport.authenticate('local'),
-  (req, res, next) => {
-    if (req.user) {
-      res.json({ user: req.user });
-    } else {
-      next(new Error('something went wrong'));
+  passport.authenticate('local',
+    {
+      successRedirect: '/',
+      failureRedirect: '/login'
     }
-  }
+  )
 );
 
 router.get('/logout', (req, res) => {
@@ -45,7 +36,7 @@ router.get('/logout', (req, res) => {
       console.log('Error : Failed to destroy the session during logout.', err);
     }
     req.user = null;
-    res.status(200).send('user successfully logout ');
+    res.redirect('/');
   });
 });
 

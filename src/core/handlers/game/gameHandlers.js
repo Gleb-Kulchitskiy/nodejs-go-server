@@ -48,7 +48,7 @@ class GameHandlers extends gameHandlerEvents {
   handleMakeInvite (opponentId, callback) {
   }
 
-  handleInvite ({ client, gameManager, roomManager, clientManager, handleEventForLoggedUsers }) {
+  handleInvite ({ client, gameManager, roomManager, clientManager, roomHandlers }) {
     return ({ opponentId, callback }) => {
       Promise.all([
         super.makeSureClientExist({ client: { id: opponentId }, clientManager }),
@@ -79,7 +79,7 @@ class GameHandlers extends gameHandlerEvents {
               player2: { id: opponentId },
               roomManager,
               clientManager,
-              handleEventForLoggedUsers
+              roomHandlers
             });
           }
           callback(null, accept);
