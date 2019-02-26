@@ -6,8 +6,6 @@ const { Strategy: GitHubStrategy } = require('passport-github');
 const { passwordHash } = require('../../utils/index');
 const config = require('../../config/index');
 
-const { getError } = require('../../utils/index');
-
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
@@ -33,12 +31,12 @@ passport.use('local', new LocalStrategy({ usernameField: 'email' }, async (email
     done(e);
   }
   if (!user) {
-    return done(null, false, { msg: `Email ${email} not found.` });
+    return done(null, false, { message: `Incorrect ${email} email or password.` });
   }
   const isMatch = passwordHash(password) === user.password;
   isMatch
     ? done(null, { id: user.id, email: user.email, name: user.name })
-    : done(null, false, { msg: 'Invalid email or password.' });
+    : done(null, false, { message: `Incorrect ${email} email or password.` });
 }));
 
 passport.use(new FacebookStrategy(
@@ -46,27 +44,26 @@ passport.use(new FacebookStrategy(
     clientID: config.FACEBOOK_ID,
     clientSecret: config.FACEBOOK_SECRET,
     callbackURL: '/auth/facebook/callback',
-    profileFields: ['name', 'email', 'link', 'locale', 'timezone', 'gender'],
+    profileFields: ['name', 'email', 'gender'],
     passReqToCallback: true,
     state: true
   }, async (req, accessToken, refreshToken, profile, done) => {
+    const _profile = {
+      name: `${profile.name.givenName} ${profile.name.familyName}`,
+      gender: `${profile._json.gender}`,
+      picture: `https://graph.facebook.com/${profile.id}/picture?type=large`
+    };
     if (req.user) {
       let user;
       try {
-        const data = await pgQuery(`UPDATE users SET facebook=$1, tokens = jsonb_set(tokens, '{ facebook }', $2,), 
-        profile = jsonb_set(profile, '{name}', $3), 
-        profile = jsonb_set(profile, '{gender}', $4), 
-        profile = jsonb_set(profile, '{picture}', $5),
-        profile = jsonb_set(profile, '{timezone}', $6), 
-        WHERE id=$7
+        const data = await pgQuery(`UPDATE users SET facebook=$1, profile=jsonb_set(profile, '{ facebook }', $2),
+        tokens = jsonb_set(tokens, '{ facebook }', $3) 
+        WHERE id=$4
         AND 
         facebook IS NULL
         RETURNING *;`, [profile.id,
-          `'${JSON.stringify({ accessToken: accessToken })}'`,
-          `'${profile.name.givenName} ${profile.name.familyName}'`,
-          `'${profile._json.gender}'`,
-          `https://graph.facebook.com/${profile.id}/picture?type=large`,
-          `'${profile.timezone}'`,
+          JSON.stringify(_profile),
+          JSON.stringify(accessToken),
           req.user.id
         ]);
         user = data.rows[0];
@@ -76,28 +73,22 @@ passport.use(new FacebookStrategy(
       if (user) {
         return done(null, user);
       } else {
-        const err = getError({ msg: 'There is already a Facebook account that belongs to the logged in user' }, 409);
-        return done(err);
+        req.flash('error', 'There is already a Facebook account that belongs to the logged in user');
+        return done(null, false);
       }
     } else {
       let user;
       try {
-        const data = await pgQuery(`UPDATE users SET facebook = $1, tokens = jsonb_set(tokens, '{ facebook }', $2,), 
-        profile = jsonb_set(profile, '{name}', $3), 
-        profile = jsonb_set(profile, '{gender}', $4), 
-        profile = jsonb_set(profile, '{picture}', $5),
-        profile = jsonb_set(profile, '{timezone}', $6),
+        const data = await pgQuery(`UPDATE users SET facebook = $1, tokens=jsonb_set(tokens, '{facebook}', $2), 
+        profile=jsonb_set(profile, '{facebook}', $3)
         WHERE 
         facebook = $1
         OR
-        email = $7
+        email = $4
         RETURNING *;`, [profile.id,
-          `'${accessToken}'`,
-          `'${profile.name.givenName} ${profile.name.familyName}'`,
-          `'${profile._json.gender}'`,
-          `https://graph.facebook.com/${profile.id}/picture?type=large`,
-          `'${profile.timezone}'`,
-          `'${profile._json.email}'`
+          JSON.stringify(accessToken),
+          JSON.stringify(_profile),
+          profile._json.email
         ]);
         user = data.rows[0];
       } catch (e) {
@@ -108,23 +99,19 @@ passport.use(new FacebookStrategy(
       } else {
         let user;
         try {
-          const data = await pgQuery('INSERT INTO users ( email, facebook, tokens, profile ) VALUES ($1, $2, $3, $4) RETURNING *;',
+          const data = await pgQuery('INSERT INTO users ( email, facebook, tokens, profile, name ) VALUES ($1, $2, $3, $4, $5) RETURNING *;',
             [
-              `'${profile._json.email}'`,
+              profile._json.email,
               profile.id,
-              `'${JSON.stringify({ facebook: accessToken })}'`,
-              `'${JSON.stringify({
-                name: `'${profile.name.givenName} ${profile.name.familyName}'`,
-                gender: `'${profile._json.gender}'`,
-                picture: `https://graph.facebook.com/${profile.id}/picture?type=large`,
-                location: `'${(profile._json.location) ? profile._json.location.name : ''}'`
-              })}'`
+              JSON.stringify({ facebook: accessToken }),
+              JSON.stringify({ facebook: _profile }),
+              _profile.name
             ]);
           user = data.rows[0];
         } catch (e) {
           return done(e);
         }
-        return done(user);
+        return done(null, user);
       }
     }
   }
@@ -133,27 +120,28 @@ passport.use(new FacebookStrategy(
 passport.use(new GitHubStrategy({
   clientID: config.GITHUB_ID,
   clientSecret: config.GITHUB_SECRET,
-  callbackURL: '/auth/github/callback',
+  callbackURL: 'http://127.0.0.1:3000/auth/github/callback',
   passReqToCallback: true,
-  state: true
+  scope: ['user:email']
 }, async (req, accessToken, refreshToken, profile, done) => {
+  const email = profile.emails[0].value;
+  const _profile = {
+    name: profile.username,
+    profileUrl: profile.profileUrl,
+    gender: `${profile._json.gender}`,
+    picture: profile._json.avatar_url
+  };
   if (req.user) {
     let user;
     try {
-      const data = await pgQuery(`UPDATE users SET github=$1, tokens = jsonb_set(tokens, '{ github }', $2,), 
-        profile = jsonb_set(profile, '{name}', $3), 
-        profile = jsonb_set(profile, '{picture}', $4), 
-        profile = jsonb_set(profile, '{location}', $5),
-        profile = jsonb_set(profile, '{website}', $6), 
-        WHERE id=$7
+      const data = await pgQuery(`UPDATE users SET github=$1, profile=jsonb_set(profile, '{ github }', $2),
+        tokens = jsonb_set(tokens, '{ github }', $3) 
+        WHERE id=$4
         AND 
         github IS NULL
         RETURNING *;`, [profile.id,
-        `'${JSON.stringify({ accessToken: accessToken })}'`,
-        `'${profile.displayName}'`,
-        `'${profile._json.avatar_url}'`,
-        `'${profile._json.location}'`,
-        `'${profile._json.blog}'`,
+        JSON.stringify(_profile),
+        JSON.stringify(accessToken),
         req.user.id
       ]);
       user = data.rows[0];
@@ -163,28 +151,22 @@ passport.use(new GitHubStrategy({
     if (user) {
       return done(null, user);
     } else {
-      const err = getError({ msg: 'There is already a github account that belongs to user' }, 409);
-      return done(err);
+      req.flash('error', 'There is already a GitHub account that belongs to the logged in user');
+      return done(null, false);
     }
   } else {
     let user;
     try {
-      const data = await pgQuery(`UPDATE users SET github = $1, tokens = jsonb_set(tokens, '{ github }', $2,), 
-        profile = jsonb_set(profile, '{name}', $3), 
-        profile = jsonb_set(profile, '{picture}', $4), 
-        profile = jsonb_set(profile, '{location}', $5),
-        profile = jsonb_set(profile, '{website}', $6), 
+      const data = await pgQuery(`UPDATE users SET github = $1, tokens=jsonb_set(tokens, '{github}', $2), 
+        profile=jsonb_set(profile, '{github}', $3)
         WHERE 
         github = $1
         OR
-        email = $7
+        email = $4
         RETURNING *;`, [profile.id,
-        `'${accessToken}'`,
-        `'${profile.displayName}'`,
-        `'${profile._json.avatar_url}'`,
-        `'${profile._json.location}'`,
-        `'${profile._json.blog}'`,
-        `'${profile._json.email}'`
+        JSON.stringify(accessToken),
+        JSON.stringify(_profile),
+        email
       ]);
       user = data.rows[0];
     } catch (e) {
@@ -195,23 +177,19 @@ passport.use(new GitHubStrategy({
     } else {
       let user;
       try {
-        const data = await pgQuery('INSERT INTO users ( email, github, tokens, profile ) VALUES ($1, $2, $3, $4) RETURNING *;',
+        const data = await pgQuery('INSERT INTO users ( email, github, tokens, profile, name ) VALUES ($1, $2, $3, $4, $5) RETURNING *;',
           [
-            `'${profile._json.email}'`,
+            email,
             profile.id,
-            `'${JSON.stringify({ facebook: accessToken })}'`,
-            `'${JSON.stringify({
-              name: `'${profile.name.profile.displayName}'`,
-              picture: `'${profile._json.avatar_url}'`,
-              location: `'${profile._json.location}'`,
-              website: `'${profile._json.blog}'`
-            })}'`
+            JSON.stringify({ github: accessToken }),
+            JSON.stringify({ github: _profile }),
+            _profile.name
           ]);
         user = data.rows[0];
       } catch (e) {
         return done(e);
       }
-      return done(user);
+      return done(null, user);
     }
   }
 }));

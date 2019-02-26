@@ -10,10 +10,10 @@ async function init () {
    name VARCHAR (50) NOT NULL,
    email VARCHAR(50) NOT NULL UNIQUE,
    password VARCHAR(240),
-   facebook VARCHAR (50),
-   github VARCHAR (50),
-   twitter VARCHAR (50),
-   tokens VARCHAR (50),
+   facebook VARCHAR (50) DEFAULT NULL,
+   github VARCHAR (50) DEFAULT NULL,
+   twitter VARCHAR (50) DEFAULT NULL,
+   tokens jsonb,
    profile jsonb,
    created_on timestamp with time zone NOT NULL DEFAULT now()
    );`);
@@ -26,11 +26,11 @@ async function init () {
     loss INTEGER,
     rank INTEGER
     );`);
-    await each(users, async ({ name, email, password, facebook, twitter, github, profile, tokens }) => {
+    await each(users, async ({ name, email, password, profile, tokens }) => {
       await query(
-        `INSERT INTO users (name,email,password,facebook,github,twitter,tokens,profile) 
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8);`,
-        [name, email, password, facebook, github, twitter, tokens, JSON.stringify(profile)]
+        `INSERT INTO users (name,email,password, tokens,profile) 
+        VALUES ($1,$2,$3,$4,$5);`,
+        [name, email, password, JSON.stringify(tokens), JSON.stringify(profile)]
       );
     });
   } catch (e) {

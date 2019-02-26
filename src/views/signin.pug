@@ -1,13 +1,12 @@
 html(lang='en')
-    -var singUp = null;
     include head
     body.login_wrapper
         .login_choice_wrapper
-            h2#sing_in.login_header(class=singUp ? "" : "choice_active") Sign-in
+            h2#sing_in.login_header.choice_active Sign-in
             h2.login_header &nbsp;\&nbsp;
-            h2#sing_up.login_header(class=singUp ? "choice_active" : "") Sign-up
+            h2#sing_up.login_header Sign-up
         div.login_form
-            form(class="column justify-content-md-center" method='post' action='/auth/login' role="form")
+            form(class="column justify-content-md-center" method='post' action='/auth/signin' role="form")
                 div.form-group
                     label(for="exampleInputEmail1") Email address
                     input(name = "email" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email")
@@ -18,19 +17,23 @@ html(lang='en')
                 div.bottom_form_wraper
                     .social_wrapper
                         .social
-                            img(src='/icons/iconmonstr-github-5.svg')
+                            img#github(src='/icons/iconmonstr-github-5.svg')
                         .social
-                            img(width='30px' height='30px' src='/icons/iconfinder_Facebook_1288098.svg' alt='facebook login')
+                            img#facebook(width='30px' height='30px' src='/icons/iconfinder_Facebook_1288098.svg' alt='facebook login')
                     button(type="submit" class="btn btn-primary") Submit
                 if message.length > 0
                     p.alert #{message}
 
 script.
-  document.getElementById('sing_in').addEventListener('click', toggleLogin)
-  document.getElementById('sing_up').addEventListener('click', toggleLogin)
-  function toggleLogin (e) {
-    const el = e.target;
-    const classes = el.className.split(' ');
-    console.log('-singUp-',window)
-    console.log('-classes-', classes)
+  document.getElementById('sing_up').addEventListener('click', toggleSingUp)
+  document.getElementById('facebook').addEventListener('click', facebookLogin)
+  document.getElementById('github').addEventListener('click', gitHubLogin)
+  function toggleSingUp () {
+    window.location.href = '/signup'
+  }
+  function facebookLogin () {
+    window.location.href = '/auth/facebook'
+  }
+  function gitHubLogin () {
+    window.location.href = '/auth/github'
   }

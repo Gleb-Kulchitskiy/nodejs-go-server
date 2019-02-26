@@ -33,11 +33,13 @@ app.use(session({
      pool
    }) */
 }));
-app.use(passport.initialize());
-app.use(passport.session());
+
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: 31557600000
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 if (config.SERVER_RENDERING) {
   app.use(flash());

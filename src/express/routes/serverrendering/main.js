@@ -8,11 +8,15 @@ const { param, validationResult } = require('express-validator/check');
 const { getError } = require('../../../utils/index');
 
 router.get('/', (req, res) => {
-  res.render('index', { title: 'Ola', user: req.user });
+  res.render('index', { title: 'Go', user: req.user });
 });
 
-router.get('/login', (req, res) => {
-  res.render('login', { message: req.flash('validationError') });
+router.get('/signin', (req, res) => {
+  res.render('signin', { message: req.flash('error') });
+});
+
+router.get('/signup', (req, res) => {
+  res.render('signup', { message: req.flash('error') });
 });
 
 router.get('/users', async (req, res) => {

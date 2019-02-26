@@ -1,0 +1,32 @@
+html(lang='en')
+    include head
+    body.login_wrapper
+        .login_choice_wrapper
+            h2#sing_in.login_header Sign-in
+            h2.login_header &nbsp;\&nbsp;
+            h2#sing_up.login_header.choice_active Sign-up
+        div.login_form
+            form(class="column justify-content-md-center" method='post' action='/auth/signup' role="form")
+                div.form-group
+                    label(for="exampleInputName1") Username
+                    input(name = "name" type="text" class="form-control" id="exampleInputName1" aria-describedby="basic-addon1" placeholder="Username")
+                div.form-group
+                    label(for="exampleInputEmail1") Email address
+                    input(name = "email" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email")
+                    small#emailHelp(class="form-text text-muted") We'll never share your email with anyone else.
+                div.form-group
+                    label(for="exampleInputPassword1") Password
+                    input(name="password" type="password" class="form-control" id="exampleInputPassword1" placeholder="Password")
+                div.form-group
+                    label(for="exampleInputPassword2") Confirm password
+                    input(name="confirm" type="password" class="form-control" id="exampleInputPassword2" placeholder="Confirm password")
+                div.bottom_form_wraper.sing-up_button
+                    button(type="submit" class="btn btn-primary" style) Submit
+                if message.length > 0
+                    p.alert #{message}
+
+script.
+  document.getElementById('sing_in').addEventListener('click', toggleSingUp)
+  function toggleSingUp (e) {
+    window.location.href='/signin'
+  }

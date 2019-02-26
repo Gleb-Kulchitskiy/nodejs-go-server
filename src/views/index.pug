@@ -10,7 +10,7 @@ html
                         | Powered by
         script.
           function onLoginClick () {
-            window.location.href = '/login'
+            window.location.href = '/signin'
           }
           const socket = io('http://localhost:3000');
           socket.emit('message', { roomName: 'global', message: 'Ola' }, function (err, data) {
