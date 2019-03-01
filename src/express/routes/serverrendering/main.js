@@ -8,6 +8,9 @@ const { param, validationResult } = require('express-validator/check');
 const { getError } = require('../../../utils/index');
 
 router.get('/', (req, res) => {
+  if (req.user) {
+    req.session.user = req.user;
+  }
   res.render('index', { title: 'Go', user: req.user });
 });
 
@@ -20,13 +23,23 @@ router.get('/signup', (req, res) => {
 });
 
 router.get('/users', async (req, res) => {
+  const serialisation = clientManager.serialize();
+  console.log('-serial-', serialisation.map(client => client.id));
   const usersId = clientManager.serialize()
-    .map(obj => obj.user.id);
+    .map(obj => {
+      if (obj.user) {
+        return obj.user.id;
+      }
+    });
+  console.log('-users-', usersId);
   const users = [];
   await each(usersId, async (id) => {
     const user = await query('SELECT id, email, name FROM users WHERE id=$1;', [id]);
-    users.push(user.rows[0]);
+    if (user.rows[0]) {
+      users.push(user.rows[0]);
+    }
   });
+
   res.json(users);
 });
 

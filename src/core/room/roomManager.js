@@ -15,7 +15,11 @@ class RoomManager {
   }
 
   removeClient (client) {
-    this.rooms.forEach(room => room.removeUser(client));
+    return [...this.rooms.values()]
+      .filter(room => {
+        return room.getClient(client);
+      })
+      .every(room => room.removeUser(client));
   }
 
   getRoomByName (roomName) {

@@ -4,7 +4,8 @@ const express = require('express');
 const ioServer = require('socket.io');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const session = require('express-session');
+let session = require('express-session');
+const sharedsession = require('express-socket.io-session');
 const flash = require('express-flash');
 const PgSession = require('connect-pg-simple')(session);
 const chalk = require('chalk');
@@ -14,25 +15,23 @@ const { pool } = require('../db/postgresql');
 const config = require('../config');
 const server = http.createServer(app);
 const io = ioServer(server);
-require('../sockets/index')(io);
 
 app.use(morgan('dev'));
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(process.cwd(), 'src', 'public')));
-app.use(session({
-  resave: false,
+
+session = session({
+  resave: true,
   saveUninitialized: true,
   secret: process.env.SESSION_SECRET,
   cookie: {
     maxAge: 1209600000
   }
-  // flash messages do not have time to save
-  /* store: new PgSession({
-     pool
-   }) */
-}));
+});
+app.use(session);
+require('../sockets/index')(io, sharedsession, session);
 
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: 31557600000
@@ -42,6 +41,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 if (config.SERVER_RENDERING) {
+  console.log('-server rendering-',);
   app.use(flash());
   app.set('views', path.join(process.cwd(), '/src/views'));
   app.set('view engine', 'pug');

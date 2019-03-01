@@ -31,7 +31,7 @@ class RoomHandleEvents extends CommonHandlers {
   handleEventForLoggedUsers ({ roomName, createEntry, roomManager, client, clientManager }) {
     return this.makeSureValidRoomAndUserLoggedIn({ roomName, roomManager, client, clientManager })
       .then(function ({ room, user }) {
-        const entry = JSON.stringify({ user, ...createEntry() }).replace(/[\"]/g, '');
+        const entry = JSON.stringify({ userId: user.id, ...createEntry() }).replace(/[\"]/g, '');
         room.addEntry(entry);
         room.broadcastMessage(`roomName: ${roomName}, ${entry}`);
         return room;
@@ -40,8 +40,8 @@ class RoomHandleEvents extends CommonHandlers {
 
   handleEventForAllUsers ({ roomName, createEntry, client, roomManager, clientManager }) {
     return this.makeSureValidRoomAndClientConnected({ roomName, roomManager, clientManager, client })
-      .then(function ({ room, user }) {
-        const entry = JSON.stringify({ ...user, ...createEntry() }).replace(/[\"]/g, '');
+      .then(function ({ room }) {
+        const entry = JSON.stringify({ ...createEntry() }).replace(/[\"]/g, '');
         room.addEntry(entry);
         return room;
       });
@@ -57,8 +57,7 @@ class RoomHandlers extends RoomHandleEvents {
   handleJoin ({ client, roomManager, clientManager }) {
     return (roomName, callback) => {
       const createEntry = () => ({ event: `client ${client.id} has joined in to the ${roomName} channel` });
-console.log('-super-',this)
-      return super.handleEventForAllUsers({ roomName, createEntry, client, roomManager, clientManager })
+      return super.handleEventForLoggedUsers({ roomName, createEntry, client, roomManager, clientManager })
         .then(function (room) {
           room.addUser(client);
           callback(null, room.getHistory());
@@ -117,10 +116,7 @@ console.log('-super-',this)
   }
 
   handleDisconnect ({ client, roomManager, clientManager }) {
-    return () => {
-      clientManager.removeClient(client);
-      roomManager.removeClient(client);
-    };
+    return clientManager.removeClient(client) && roomManager.removeClient(client);
   }
 };
 

@@ -30,7 +30,11 @@ class Room {
   }
 
   removeUser (client) {
-    this.members.delete(client.id);
+    return this.members.delete(client.id);
+  }
+
+  getClient (client) {
+    return this.members.get(client.id);
   }
 
   serialize () {

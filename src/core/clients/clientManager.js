@@ -7,12 +7,16 @@ class ClientManager {
     this.clients.set(client.id, { id: client.id, client });
   }
 
+  addUser (user) {
+    this.clients.set(user.id, { id: null, client: null, user });
+  }
+
   registerClient (client, user) {
     this.clients.set(client.id, { id: client.id, client, user });
   }
 
   removeClient (client) {
-    this.clients.delete(client.id);
+    return this.clients.delete(client.id);
   }
 
   getAvailableUsers () {
@@ -37,6 +41,11 @@ class ClientManager {
 
   getClientById (id) {
     return this.clients.get(id);
+  }
+
+  getUserByUserId (id) {
+    return this.clients.values()
+      .filter(data => data.user.id === id)[0];
   }
 
   serialize () {

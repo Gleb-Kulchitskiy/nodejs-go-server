@@ -5,3 +5,10 @@
             button(type="button" class="btn btn-light" onclick='onLogoutClick()') logout
         else
             button(type="button" class="btn btn-light" onclick='onLoginClick()') login
+script.
+  function onLogoutClick () {
+    window.location.href = '/auth/logout'
+  }
+  function onLoginClick () {
+    window.location.href = '/signin'
+  }

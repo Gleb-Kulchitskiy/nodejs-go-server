@@ -3,22 +3,21 @@ html
     include head
     body
         include top
-        footer
+        .main-wrapper
+            .chat-wrapper
+                .chat
+                    .chat-top
+                        .message-box-wrapper
+                            ul#message-list.message-list
+                        .user-list-wrapper
+                    .chat-bottom
+                        form#chat-form.chat-form
+                            input#chat-input.chat-input(type='text' name='message' placeholder='Message')
+                            button(type='submit' class="btn btn-primary" style) Send
+        footer.footer
             .container
                 .content
                     p
                         | Powered by
-        script.
-          function onLoginClick () {
-            window.location.href = '/signin'
-          }
-          const socket = io('http://localhost:3000');
-          socket.emit('message', { roomName: 'global', message: 'Ola' }, function (err, data) {
-            if (err) {
-              console.log(err)
-            }
-            console.log(data)
-          })
-          function onLogoutClick () {
-            window.location.href = '/auth/logout'
-          }
+        script(src='scripts/index.js' defer)
+        script(src='scripts/init.js' defer)

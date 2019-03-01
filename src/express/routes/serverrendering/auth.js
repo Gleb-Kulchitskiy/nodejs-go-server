@@ -11,6 +11,7 @@ router.post('/signin',
     body('password', 'password should be equal or grater then 5').isLength({ min: 5 })
   ],
   (req, res, next) => {
+  console.log('-adawedWQEQWR-',)
     const result = validationResult(req).array();
     if (result.length) {
       result.forEach(obj => {
@@ -20,13 +21,11 @@ router.post('/signin',
     }
     next();
   },
-  passport.authenticate('local',
-    {
-      successRedirect: '/',
-      failureRedirect: '/signin',
-      failureFlash: true
-    }
-  )
+  passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/signin',
+    failureFlash: true
+  })
 );
 
 router.get('/logout', (req, res) => {

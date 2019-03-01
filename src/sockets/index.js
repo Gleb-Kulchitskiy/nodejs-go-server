@@ -3,15 +3,33 @@ const clientManager = require('../core/clients/clientManager');
 const gameManager = require('../core/game/gameManager');
 const RoomHandlers = require('../core/handlers/room/roomHandlers');
 const GameHandlers = require('../core/handlers/game/gameHandlers');
-
 const roomHandlers = new RoomHandlers();
 
 const gameHandlers = new GameHandlers();
 
-module.exports = function (io) {
+module.exports = function (io, sharedsession, session) {
+  io.use(sharedsession(session));
   io.on('connection', (client) => {
-    clientManager.addClient(client);
-
+    if (client.handshake.session.user) {
+      console.log('-have User-',);
+      const user = client.handshake.session.user;
+      clientManager.registerClient(client, user);
+      roomHandlers.handleJoin({ client, roomManager, clientManager })('global', (err, data) => {
+        if (err) console.log('-err-', err);
+        else {
+          console.log('-client has been joined to the Global Room-', data);
+        }
+      });
+    } else {
+      console.log('-do not have user-',);
+      clientManager.addClient(client);
+      roomHandlers.handleJoin({ client, roomManager, clientManager })('global', (err, data) => {
+        if (err) console.log('-err-', err);
+        else {
+          console.log('-client has been joined to the Global Room-', data);
+        }
+      });
+    }
     client.on('message', roomHandlers.handleMessage({ client, roomManager, clientManager }));
 
     client.on('private', roomHandlers.handlePrivate({ client, clientManager }));
@@ -34,7 +52,8 @@ module.exports = function (io) {
 
     client.on('disconnect', function () {
       console.log('clients disconnect...', client.id);
-      roomHandlers.handleDisconnect({ client, roomManager, clientManager });
+      const result = roomHandlers.handleDisconnect({ client, roomManager, clientManager });
+      console.log(`client with id = ${client.id} was ${result ? 'successfully' : 'NOT'} removed from the Rooms and/or clientManager`);
     });
 
     client.on('error', function (err) {

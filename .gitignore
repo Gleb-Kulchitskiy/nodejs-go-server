@@ -11,6 +11,3 @@ node_modules
 src/tmp.js
 src/test.js
 src/tmp/
-
-# build
-public
