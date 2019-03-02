@@ -1,4 +1,5 @@
 const CommonHandlers = require('../commonHandlers/index');
+const { each } = require('awaity');
 
 class RoomHandleEvents extends CommonHandlers {
   constructor () {
@@ -28,12 +29,11 @@ class RoomHandleEvents extends CommonHandlers {
       .then(([room, user]) => Promise.resolve({ room, user }));
   }
 
-  handleEventForLoggedUsers ({ roomName, createEntry, roomManager, client, clientManager }) {
+  handleEventWithLoggedUser ({ roomName, createLogEntry, createEntryForClient, roomManager, client, clientManager, type }) {
     return this.makeSureValidRoomAndUserLoggedIn({ roomName, roomManager, client, clientManager })
-      .then(function ({ room, user }) {
-        const entry = JSON.stringify({ userId: user.id, ...createEntry() }).replace(/[\"]/g, '');
-        room.addEntry(entry);
-        room.broadcastMessage(`roomName: ${roomName}, ${entry}`);
+      .then(function ({ room }) {
+        room.addEntry(JSON.stringify(createLogEntry()));
+        room.broadcastMessage({ type, message: JSON.stringify({ roomName: roomName, entry: createEntryForClient() }) });
         return room;
       });
   }
@@ -41,7 +41,7 @@ class RoomHandleEvents extends CommonHandlers {
   handleEventForAllUsers ({ roomName, createEntry, client, roomManager, clientManager }) {
     return this.makeSureValidRoomAndClientConnected({ roomName, roomManager, clientManager, client })
       .then(function ({ room }) {
-        const entry = JSON.stringify({ ...createEntry() }).replace(/[\"]/g, '');
+        const entry = JSON.stringify({ ...createEntry() });
         room.addEntry(entry);
         return room;
       });
@@ -54,10 +54,31 @@ class RoomHandlers extends RoomHandleEvents {
     super();
   }
 
+  handleJoinLoggedUser ({ client, user, roomManager, clientManager }) {
+    return (roomName, callback) => {
+      const createLogEntry = () => ({ event: `user id ${user.id} has joined in to the ${roomName} channel` });
+      const createEntryForClient = () => ({ event: `user ${user.name} has joined in to the ${roomName} channel` });
+      return super.handleEventWithLoggedUser({
+        roomName,
+        createLogEntry,
+        createEntryForClient,
+        client,
+        roomManager,
+        clientManager,
+        type: 'serviceMessage'
+      })
+        .then(function (room) {
+          room.addUser(client);
+          callback(null, room.getHistory());
+        })
+        .catch(callback);
+    };
+  }
+
   handleJoin ({ client, roomManager, clientManager }) {
     return (roomName, callback) => {
       const createEntry = () => ({ event: `client ${client.id} has joined in to the ${roomName} channel` });
-      return super.handleEventForLoggedUsers({ roomName, createEntry, client, roomManager, clientManager })
+      return super.handleEventWithLoggedUser({ roomName, createEntry, client, roomManager, clientManager })
         .then(function (room) {
           room.addUser(client);
           callback(null, room.getHistory());
@@ -80,8 +101,18 @@ class RoomHandlers extends RoomHandleEvents {
 
   handleMessage ({ roomManager, client, clientManager }) {
     return ({ roomName, message } = {}, callback) => {
-      const createEntry = () => ({ message });
-      return super.handleEventForLoggedUsers({ roomName, createEntry, roomManager, client, clientManager })
+      const user = clientManager.getUserByClientId(client.id);
+      const createLogEntry = () => ({ event: `user id ${user.id} has send the message: ${message} to the ${roomName} channel` });
+      const createEntryForClient = () => ({ user, message });
+      return super.handleEventWithLoggedUser({
+        roomName,
+        createLogEntry,
+        createEntryForClient,
+        roomManager,
+        client,
+        clientManager,
+        type: 'message'
+      })
         .then(() => callback(null))
         .catch(callback);
     };
@@ -115,8 +146,40 @@ class RoomHandlers extends RoomHandleEvents {
     };
   }
 
-  handleDisconnect ({ client, roomManager, clientManager }) {
-    return clientManager.removeClient(client) && roomManager.removeClient(client);
+  async handleDisconnect ({ client, roomManager, clientManager }) {
+    const user = clientManager.getUserByClientId(client.id);
+    if (user) {
+      const rooms = roomManager.getRooms()
+        .filter(room => {
+          return room.getClient(client);
+        });
+      await each(rooms, async (room) => {
+        const createLogEntry = () => ({ event: `user id ${user.id} has leave the ${room.name} channel` });
+        const createEntryForClient = () => ({ event: `user ${user.name} has leave the ${room.name} channel` });
+        await super.handleEventWithLoggedUser({
+          roomName: room.name,
+          createLogEntry,
+          createEntryForClient,
+          roomManager,
+          client,
+          clientManager,
+          type: 'serviceMessage'
+        })
+          .then(() => {
+            room.removeUser(client);
+          });
+      });
+
+      const isRemoved = roomManager.getRooms()
+        .filter(room => {
+          return room.getClient(client);
+        }).length === 0;
+      console.log('-is removed-', isRemoved);
+      return isRemoved && clientManager.removeClient(client);
+    }
+    else {
+      console.log('-do not logged in-',);
+    }
   }
 };
 

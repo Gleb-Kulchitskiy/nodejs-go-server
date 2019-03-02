@@ -14,7 +14,7 @@ module.exports = function (io, sharedsession, session) {
       console.log('-have User-',);
       const user = client.handshake.session.user;
       clientManager.registerClient(client, user);
-      roomHandlers.handleJoin({ client, roomManager, clientManager })('global', (err, data) => {
+      roomHandlers.handleJoinLoggedUser({ client, user, roomManager, clientManager })('global', (err, data) => {
         if (err) console.log('-err-', err);
         else {
           console.log('-client has been joined to the Global Room-', data);
@@ -52,8 +52,9 @@ module.exports = function (io, sharedsession, session) {
 
     client.on('disconnect', function () {
       console.log('clients disconnect...', client.id);
-      const result = roomHandlers.handleDisconnect({ client, roomManager, clientManager });
-      console.log(`client with id = ${client.id} was ${result ? 'successfully' : 'NOT'} removed from the Rooms and/or clientManager`);
+      roomHandlers.handleDisconnect({ client, roomManager, clientManager })
+        .then(() => console.log(`client ${client.id} disconected`))
+        .catch(e => console.log('-error-', e));
     });
 
     client.on('error', function (err) {

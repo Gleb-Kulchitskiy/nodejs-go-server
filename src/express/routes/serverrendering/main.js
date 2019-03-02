@@ -23,14 +23,9 @@ router.get('/signup', (req, res) => {
 });
 
 router.get('/users', async (req, res) => {
-  const serialisation = clientManager.serialize();
-  console.log('-serial-', serialisation.map(client => client.id));
   const usersId = clientManager.serialize()
-    .map(obj => {
-      if (obj.user) {
-        return obj.user.id;
-      }
-    });
+    .filter(obj => obj.user)
+    .map(obj => obj.user.id);
   console.log('-users-', usersId);
   const users = [];
   await each(usersId, async (id) => {

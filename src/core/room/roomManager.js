@@ -26,6 +26,10 @@ class RoomManager {
     return this.rooms.get(roomName);
   }
 
+  getRooms () {
+    return [...this.rooms.values()];
+  }
+
   serializeRooms () {
     return [...this.rooms.values()].map(room => room.serialize());
   }

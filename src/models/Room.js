@@ -5,16 +5,10 @@ class Room {
     this.history = [];
   }
 
-  broadcastMessage (message) {
-    if (!this.members.size) {
-      throw new Error('No members to broadcast for');
-    } else if (!message) {
-      throw new Error('No message to broadcast');
-    } else if (typeof message !== 'string') {
-      throw new Error(`Message should be a string, but got ${message.toString()}`);
-    }
-
-    this.members.forEach(member => member.emit('message', message));
+  broadcastMessage ({ type, message }) {
+    console.log('-message-', message);
+    console.log('-asdasdad-', JSON.parse(message));
+    this.members.forEach(member => member.emit(type, message));
   }
 
   addEntry (entry) {

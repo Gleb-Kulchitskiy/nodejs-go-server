@@ -3,11 +3,9 @@ document.getElementById('chat-form').addEventListener('submit', onChatFormSubmit
 function onChatFormSubmit (e) {
   e.preventDefault();
   const value = document.getElementById('chat-input').value;
-  const messageList = document.getElementById('message-list');
-  const li = document.createElement('li');
-  const textNode = document.createTextNode(value);
-  li.appendChild(textNode);
-  messageList.appendChild(li);
+  if (!value) return;
+  document.getElementById('chat-input').value = '';
+  socket.emit('message', { roomName: 'global', message: value });
 }
 
 /*async function socketConnect (io) {
@@ -15,9 +13,18 @@ function onChatFormSubmit (e) {
   return socket;
 }*/
 
-function getLoggedUsers () {
-  axios('/users')
-    .then(resp => console.log('-resp-', resp.data))
+async function getLoggedUsers () {
+  const users = await axios('/users')
+    .then(resp => resp.data)
     .catch(e => console.log('-e-', e));
-
+  console.log('-users-', users);
+  const list = document.getElementById('user-list');
+  users.forEach(user => {
+    const el = document.createElement('li');
+    el.style.cssText = 'font-size:11px; list-style-type: none; padding-left: 5px;';
+    const textNode = document.createTextNode(`${user.name}`);
+    el.appendChild(textNode);
+    list.appendChild(el);
+  });
+  return users;
 }

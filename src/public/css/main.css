@@ -58,6 +58,7 @@ body {
 .chat-wrapper .chat .chat-top .message-box-wrapper .message-list {
     list-style-type: none;
     padding-left: 5px;
+    height: 100%;
 }
 
 .chat-wrapper .chat .chat-top .user-list-wrapper{
